@@ -1,0 +1,877 @@
+﻿<!doctype html>
+<html lang="pt-BR" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca de Crochê — Receitas, PDFs e Videoaulas Exclusivas</title>
+  <meta name="description" content="Acesse centenas de receitas de crochê, PDFs exclusivos e videoaulas completas. Tudo organizado para você aprender no seu ritmo.">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+  html, body { height: 100%; margin: 0; }
+  * { font-family: 'Manrope', sans-serif; }
+  html { font-size: 16px; }
+  @media (max-width: 768px) { html { font-size: 17px; } }
+  .sidebar-open { transform: translateX(0) !important; }
+  .overlay-visible { opacity: 1 !important; pointer-events: auto !important; }
+
+  /* Acessibilidade: reduzir animações se preferido */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  .type-stripe { width: 6px; min-height: 100%; border-radius: 4px; flex-shrink: 0; position: relative; }
+  .type-stripe::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+    border-radius: 4px;
+  }
+  
+  .card-item { 
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    border: 2.5px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.12);
+  }
+  .card-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    transition: left 0.6s ease;
+    z-index: 1;
+  }
+  .card-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(255, 107, 107, 0.08), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .card-item:hover::before { left: 100%; }
+  @media (hover: hover) {
+    .card-item:hover { 
+      box-shadow: 0 25px 50px rgba(255, 107, 107, 0.25), inset 0 0 0 2.5px rgba(255, 107, 107, 0.8);
+      transform: translateY(-10px) scale(1.03);
+    }
+  }
+  /* Touch feedback para mobile */
+  .card-item:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3), inset 0 0 0 2.5px rgba(255, 107, 107, 0.8);
+  }
+  @media (max-width: 768px) {
+    .card-item { min-height: 120px; }
+  }
+  
+  .nav-item { 
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 100% 50%, rgba(255, 107, 107, 0.1), transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 0;
+    background: linear-gradient(180deg, #ff6b6b, #ff5252);
+    border-radius: 2px;
+    transition: height 0.25s ease;
+    box-shadow: 0 0 16px #ff6b6b;
+    z-index: 1;
+  }
+  .nav-item:hover { 
+    background: linear-gradient(135deg, #ffe6e6 0%, #fff0f0 100%);
+    transform: translateX(6px);
+    box-shadow: inset 0 0 8px rgba(255, 107, 107, 0.1);
+  }
+  .nav-item:hover::after { opacity: 1; }
+  .nav-item.active { 
+    background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 12px 24px rgba(255, 107, 107, 0.4);
+  }
+  .nav-item.active::before { height: 28px; box-shadow: 0 0 20px #ff6b6b, 0 0 40px rgba(255, 107, 107, 0.5); }
+  
+  .copy-feedback { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  
+  .bigger-text { font-size: 1.3em !important; letter-spacing: 0.01em; }
+  .bigger-text .card-title { font-size: 1.35em !important; }
+  .bigger-text .nav-item span { font-size: 1em !important; }
+  .bigger-text button { font-size: 1em !important; }
+  .bigger-text #pix-msg { font-size: 1.15em !important; }
+  .bigger-text #breadcrumb button { font-size: 1em !important; }
+  
+  .simple-mode .card-item { 
+    border-width: 3px !important; 
+    border-color: #ff6b6b !important;
+    box-shadow: 0 12px 32px rgba(255, 107, 107, 0.5) !important;
+  }
+  .simple-mode .card-title { font-size: 1.15em !important; font-weight: 800 !important; }
+  .simple-mode h2, .simple-mode h1 { text-decoration: underline; text-decoration-color: #ff6b6b; text-underline-offset: 8px; text-decoration-thickness: 3px; }
+  
+  @keyframes fadeInUp { 
+    from { opacity: 0; transform: translateY(20px); } 
+    to { opacity: 1; transform: translateY(0); } 
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 107, 107, 0.7), 0 0 30px rgba(255, 152, 0, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(255, 107, 107, 1), 0 0 50px rgba(255, 152, 0, 0.5); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+  @keyframes float-up {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes subtle-rotate {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(2deg); }
+  }
+  
+  .fade-in { animation: fadeInUp 0.45s ease both; }
+  .fade-in-1 { animation-delay: 0.08s; }
+  .fade-in-2 { animation-delay: 0.16s; }
+  .fade-in-3 { animation-delay: 0.24s; }
+  .fade-in-4 { animation-delay: 0.32s; }
+  .fade-in-5 { animation-delay: 0.4s; }
+  
+  .slide-in { animation: slideInLeft 0.5s ease both; }
+  
+  .pix-card {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 50%, #fff0f0 100%);
+    position: relative;
+    overflow: hidden;
+    border: 3px solid #ff8787 !important;
+    box-shadow: 0 16px 40px rgba(255, 107, 107, 0.25) !important;
+  }
+  .pix-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -50%;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(255, 107, 107, 0.2), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: glow-pulse 4s ease-in-out infinite;
+    filter: blur(1px);
+  }
+  .pix-card::after {
+    content: '';
+    position: absolute;
+    bottom: -60%; left: -60%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255, 152, 0, 0.15), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float-up 5s ease-in-out infinite;
+  }
+  
+  .icon-pulse {
+    animation: pulse-soft 1.5s ease-in-out infinite;
+  }
+  
+  button { 
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); 
+    position: relative;
+    overflow: hidden;
+  }
+  button::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 0; height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  button:active { transform: scale(0.92); }
+  
+  .topbar-area {
+    animation: slideInLeft 0.5s ease;
+    background: linear-gradient(135deg, #ffe6e6 0%, #fff0f0 100%) !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.1);
+  }
+  
+  #main-content {
+    background: linear-gradient(180deg, #fff5f5 0%, #fffbf8 50%, #fff0f0 100%);
+    position: relative;
+  }
+  #main-content::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255, 107, 107, 0.05), transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+  }
+
+  .hero-card {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 40%, #ff6b6b 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -30%; right: -20%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40%; left: -10%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .stat-pill {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+  }
+  .stat-pill:hover {
+    background: rgba(255,255,255,0.35);
+    transform: scale(1.05);
+  }
+
+  .float-pix-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 50;
+    animation: bounce-gentle 2s ease-in-out infinite;
+    box-shadow: 0 8px 32px rgba(255, 107, 107, 0.5);
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    min-height: 56px;
+    min-width: 56px;
+    font-size: 1rem;
+  }
+  .float-pix-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  @media (hover: hover) {
+    .float-pix-btn:hover {
+      box-shadow: 0 12px 40px rgba(255, 107, 107, 0.7);
+      transform: scale(1.1) !important;
+    }
+  }
+  .float-pix-btn:active {
+    transform: scale(0.95) !important;
+  }
+  @media (max-width: 768px) {
+    .float-pix-btn {
+      bottom: 16px;
+      right: 16px;
+      padding: 14px 20px;
+      font-size: 1rem;
+      border-radius: 9999px;
+    }
+  }
+
+  @keyframes bounce-gentle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .trust-badge {
+    background: linear-gradient(135deg, rgba(255,107,107,0.08), rgba(255,107,107,0.03));
+    border: 1.5px solid rgba(255,107,107,0.15);
+    min-height: 44px;
+  }
+
+  .card-item { cursor: pointer; -webkit-tap-highlight-color: rgba(255,107,107,0.15); }
+
+  /* Mobile-first: botões e alvos de toque maiores */
+  @media (max-width: 768px) {
+    .topbar-area { padding: 10px 12px; gap: 8px; }
+    .topbar-area button { min-height: 48px; padding: 10px 14px; font-size: 0.9rem; }
+    #breadcrumb button { min-height: 40px; padding: 8px 14px; font-size: 0.9rem; }
+    .nav-item { min-height: 48px; padding-top: 10px; padding-bottom: 10px; }
+    #search-input { min-height: 52px; font-size: 1rem; }
+    .trust-badge { padding: 10px 14px; }
+    .trust-badge span { font-size: 0.85rem; }
+    .stat-pill { padding: 10px 14px; }
+  }
+</style>
+  <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        warm: { bg: '#fff5f5', sidebar: '#fffbf8', border: '#ffe6e6', dark: '#ffc9c9' },
+        ink: { primary: '#1d1a16', secondary: '#5a4a3a' },
+        terra: { DEFAULT: '#ff6b6b', dark: '#ff5252' },
+        pix: '#ff6b6b',
+        stripe: { video: '#2e6c57', pdf: '#3d6da5', folder: '#c37c2f' }
+      }
+    }
+  }
+}
+</script>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full bg-warm-bg text-ink-primary overflow-hidden">
+  <div id="app-wrapper" class="h-full w-full flex relative overflow-hidden">
+   <!-- Overlay -->
+   <div id="overlay" class="fixed inset-0 bg-black/40 z-30 opacity-0 pointer-events-none transition-opacity lg:hidden" onclick="toggleSidebar()"></div><!-- Sidebar -->
+   <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-[320px] bg-warm-sidebar border-r-2 border-warm-border z-40 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto flex-shrink-0">
+    <header class="p-6 pb-2">
+     <div class="flex items-center gap-3 mb-1">
+      <div class="w-10 h-10 rounded-xl bg-terra flex items-center justify-center">
+       <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
+      </div>
+      <div>
+       <h1 id="sidebar-title" class="text-xl font-extrabold text-ink-primary leading-tight">Crochê Digital 🧶</h1>
+       <p id="sidebar-subtitle" class="text-sm text-ink-secondary font-medium">Sua biblioteca completa</p>
+      </div>
+     </div>
+    </header><!-- Search -->
+    <div class="px-5 py-3">
+     <div class="relative">
+      <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-secondary"></i> <input type="text" id="search-input" placeholder="Buscar aula, PDF ou pasta" class="w-full pl-11 pr-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-medium placeholder:text-ink-secondary/60 focus:outline-none focus:border-terra transition text-[15px]" oninput="filterNav(this.value)">
+     </div>
+    </div><!-- Nav Tree -->
+    <nav class="flex-1 px-4 py-2 overflow-y-auto" id="nav-tree">
+     <p class="px-3 mb-2 text-xs font-bold text-ink-secondary uppercase tracking-wider">Pastas</p>
+    </nav><!-- Sidebar Footer -->
+    <div class="p-4 border-t-2 border-warm-border">
+     <p class="text-xs text-ink-secondary text-center font-medium">🧶 Feito com amor para você</p>
+     <p class="text-[10px] text-ink-secondary/50 text-center mt-1">Conteúdo exclusivo para alunas</p>
+    </div>
+   </aside><!-- Main Content -->
+   <main id="main-content" class="flex-1 h-full flex flex-col overflow-hidden min-w-0">
+    <!-- Topbar -->
+    <div class="topbar-area flex-shrink-0 bg-warm-sidebar border-b-2 border-warm-border px-3 py-2.5 md:px-4 md:py-3">
+     <div class="flex items-center gap-2 flex-wrap">
+      <button onclick="toggleSidebar()" class="lg:hidden flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" aria-label="Menu"> <i data-lucide="menu" class="w-5 h-5"></i> <span>Menu</span> </button>
+      <button onclick="goBack()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition"> <i data-lucide="arrow-left" class="w-5 h-5"></i> <span>Voltar</span> </button>
+      <div class="flex-1"></div>
+      <button onclick="toggleBigText()" id="btn-big-text" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" title="Aumentar texto"> <i data-lucide="type" class="w-5 h-5"></i> <span class="hidden sm:inline">Texto maior</span> <span class="sm:hidden">Aa+</span> </button>
+      <button onclick="toggleSimple()" id="btn-simple" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" title="Modo simples"> <i data-lucide="eye" class="w-5 h-5"></i> <span class="hidden sm:inline">Modo simples</span> <span class="sm:hidden">Simples</span> </button>
+     </div>
+    </div><!-- Scrollable area -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8" id="scroll-area">
+     <!-- Hero Section (root only) -->
+     <div id="hero-section" class="rounded-2xl p-5 md:p-8 mb-5 fade-in hero-card shadow-xl hidden">
+      <div class="relative z-10">
+       <p class="text-white/80 text-sm md:text-base font-bold mb-2">🧶 Bem-vinda à sua biblioteca!</p>
+       <h2 class="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3">Receitas, vídeos e PDFs de crochê <span class="underline decoration-white/40 underline-offset-4">organizados</span> para você</h2>
+       <p class="text-white/90 text-base md:text-lg font-semibold mb-5 leading-relaxed">Explore à vontade! Veja as categorias, abra os PDFs e assista os vídeos. Tudo isso é seu! 💕</p>
+       <div class="flex flex-wrap gap-2 md:gap-3" id="hero-stats"></div>
+      </div>
+     </div>
+
+     <!-- Trust Badges -->
+     <div id="trust-badges" class="grid grid-cols-2 gap-2 md:gap-3 mb-5 fade-in fade-in-1 hidden">
+      <div class="trust-badge rounded-xl px-3 md:px-4 py-2.5 flex items-center gap-2">
+       <span class="text-base">⭐</span>
+       <span class="text-sm font-bold text-ink-secondary">Conteúdo exclusivo</span>
+      </div>
+      <div class="trust-badge rounded-xl px-3 md:px-4 py-2.5 flex items-center gap-2">
+       <span class="text-base">📱</span>
+       <span class="text-sm font-bold text-ink-secondary">Fácil de usar</span>
+      </div>
+      <div class="trust-badge rounded-xl px-3 md:px-4 py-2.5 flex items-center gap-2">
+       <span class="text-base">📥</span>
+       <span class="text-sm font-bold text-ink-secondary">Acesse quando quiser</span>
+      </div>
+      <div class="trust-badge rounded-xl px-3 md:px-4 py-2.5 flex items-center gap-2">
+       <span class="text-base">♾️</span>
+       <span class="text-sm font-bold text-ink-secondary">Acesso vitalício</span>
+      </div>
+     </div>
+
+     <!-- Quick PIX (compacto, logo no topo) -->
+     <div id="quick-pix" class="bg-gradient-to-r from-terra/10 to-terra/5 border-2 border-terra/20 rounded-xl p-3 md:p-4 mb-5 fade-in fade-in-1 hidden">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+       <p class="text-ink-primary text-sm md:text-base font-bold text-center sm:text-left">💳 Hora de pagar? Chave PIX:</p>
+       <div class="flex items-center gap-2">
+        <span class="font-extrabold text-ink-primary text-base md:text-lg select-all">79991083702</span>
+        <button onclick="copyPixQuick()" class="flex items-center gap-1.5 px-4 py-2.5 bg-terra text-white font-extrabold rounded-lg active:scale-95 transition text-sm min-h-[44px]">
+         <i data-lucide="copy" class="w-4 h-4"></i> <span id="quick-pix-btn-text">Copiar PIX</span>
+        </button>
+       </div>
+      </div>
+     </div>
+
+     <!-- Breadcrumb -->
+     <div class="flex items-center gap-1.5 mb-4 flex-wrap fade-in fade-in-1" id="breadcrumb">
+      <button class="px-3 py-1.5 rounded-lg bg-warm-dark/50 text-ink-secondary font-bold text-sm hover:bg-warm-dark transition" onclick="navigateTo('root')">Início</button>
+     </div><!-- Folder Info Card -->
+     <div class="bg-white rounded-2xl border-2 border-warm-border p-4 md:p-6 mb-5 fade-in fade-in-2 shadow-md">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-ink-primary mb-2" id="folder-title">Início</h2>
+      <p class="text-ink-secondary text-base font-semibold mb-4" id="folder-meta">6 itens • Atualizado recentemente</p>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold rounded-xl hover:shadow-xl active:scale-95 transition text-base shadow-lg min-h-[52px]" id="drive-btn">
+       <i data-lucide="external-link" class="w-5 h-5"></i>
+       <span id="drive-btn-text">Abrir tudo no Google Drive</span>
+      </a>
+     </div><!-- Content Grid -->
+     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5" id="content-grid"></div>
+
+     <!-- PIX Card (depois do conteúdo = a pessoa já viu valor) -->
+     <div class="bg-white rounded-2xl border-2 border-warm-border p-4 md:p-6 mt-8 mb-5 fade-in pix-card shadow-lg" id="pix-card">
+      <div class="text-center mb-4 relative z-10">
+       <div class="w-14 h-14 rounded-full bg-gradient-to-br from-terra to-terra/80 flex items-center justify-center mx-auto mb-3 icon-pulse shadow-lg">
+        <i data-lucide="heart" class="w-7 h-7 text-white"></i>
+       </div>
+       <p id="pix-msg" class="text-ink-primary text-lg md:text-xl leading-relaxed font-extrabold">🧶 Gostou do material? Faça seu pagamento aqui!</p>
+       <p class="text-ink-secondary text-base mt-2 font-semibold leading-relaxed max-w-md mx-auto">Envie o valor combinado pelo PIX abaixo. É instantâneo e super fácil! Depois me manda o comprovante no WhatsApp 😉</p>
+      </div>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-3 mt-5 relative z-10">
+       <div class="flex items-center justify-center gap-2 bg-gradient-to-r from-terra/15 to-terra/10 border-2 border-terra/40 rounded-xl px-4 py-3 shadow-md">
+        <span class="text-xs font-extrabold text-terra uppercase tracking-widest">PIX</span>
+        <span id="pix-display" class="font-extrabold text-ink-primary text-lg md:text-xl tracking-wide select-all">79991083702</span>
+       </div>
+       <button onclick="copyPix()" class="flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold rounded-xl hover:shadow-xl active:scale-95 transition text-base shadow-lg min-h-[52px]">
+        <i data-lucide="copy" class="w-5 h-5"></i>
+        <span>Copiar chave PIX</span>
+       </button>
+       <span id="copy-feedback" class="copy-feedback opacity-0 text-terra font-extrabold text-base flex items-center justify-center gap-1">
+        <i data-lucide="check-circle" class="w-5 h-5"></i> Copiado!
+       </span>
+      </div>
+      <p class="text-center text-ink-secondary/60 text-sm mt-4 relative z-10 font-medium">Obrigada pela confiança! Você vai amar ❤️</p>
+     </div>
+    </div>
+   </main>
+  </div>
+
+  <!-- Floating PIX Button -->
+  <button onclick="scrollToPix()" class="float-pix-btn rounded-full px-5 py-3.5 bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold flex items-center gap-2 min-h-[56px]" id="float-pix" aria-label="Pagar via PIX">
+   <i data-lucide="heart" class="w-6 h-6"></i>
+   <span class="hidden sm:inline text-base">Pagar via PIX</span>
+   <span class="sm:hidden text-base">💳 PIX</span>
+  </button>
+
+  <script src="app-data.js"></script>
+  <script>
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function driveOpenUrl(item) {
+  if (!item) return '#';
+  if (item.m === 'f') return item.u || `https://drive.google.com/drive/folders/${item.i}`;
+  return `https://drive.google.com/file/d/${item.i}/view`;
+}
+
+// --- Stats computation ---
+function getStats() {
+  const items = Object.values(ITEMS);
+  return {
+    total: items.length,
+    folders: items.filter(x => x.m === 'f').length,
+    videos: items.filter(x => x.m === 'v').length,
+    pdfs: items.filter(x => x.m === 'pdf').length
+  };
+}
+const STATS = getStats();
+
+let currentFolder = localStorage.getItem('lastFolder') || ROOT;
+if (currentFolder !== ROOT && !ITEMS[currentFolder]) currentFolder = ROOT;
+
+let largeText = localStorage.getItem('largeText') === '1';
+let simpleMode = localStorage.getItem('simpleMode') === '1';
+if (largeText) document.getElementById('app-wrapper').classList.add('bigger-text');
+if (simpleMode) document.getElementById('app-wrapper').classList.add('simple-mode');
+
+const stripeColors = { video: '#2e6c57', v: '#2e6c57', pdf: '#3d6da5', folder: '#c37c2f', f: '#c37c2f' };
+const typeMeta = {
+  v: { label: 'Vídeo-aula', icon: 'play-circle', action: '▶ Assistir agora' },
+  pdf: { label: 'Receita PDF', icon: 'file-text', action: '📄 Ver receita' },
+  f: { label: 'Categoria', icon: 'folder', action: '📂 Explorar' }
+};
+
+// Emojis por palavra-chave no nome da pasta (para idosas visualizarem melhor)
+const folderEmojis = [
+  [/beb[eê]/i, '👶'], [/amigurumi/i, '🧸'], [/flor/i, '🌸'], [/bolsa/i, '👜'],
+  [/tap[eê]te/i, '🏠'], [/natal/i, '🎄'], [/croch[eê]/i, '🧶'], [/ponto/i, '🪡'],
+  [/blusa|roupa|vest/i, '👗'], [/sapat|sapatinho|meia/i, '🧦'], [/toalh/i, '🛁'],
+  [/cachecol|gorro|tou/i, '🧣'], [/cozinha/i, '🍳'], [/bicho|animal/i, '🐾'],
+  [/barrado/i, '✂️'], [/jogo.*banheiro/i, '🚿'], [/almofad/i, '🛋️'],
+  [/sousplat/i, '🍽️'], [/coração/i, '❤️'], [/caminho.*mesa/i, '🍽️'],
+  [/porta/i, '🚪'], [/p[aá]scoa/i, '🐰'], [/quadrad/i, '🔲']
+];
+function getFolderEmoji(name) {
+  for (const [re, emoji] of folderEmojis) {
+    if (re.test(name)) return emoji;
+  }
+  return '📁';
+}
+
+function buildPath(folderId) {
+  const path = [{ id: ROOT, name: 'Início' }];
+  const chain = [];
+  let cur = folderId;
+  const guard = new Set();
+  while (cur && cur !== ROOT && !guard.has(cur)) {
+    guard.add(cur);
+    const it = ITEMS[cur];
+    if (!it) break;
+    chain.unshift({ id: it.i, name: it.n });
+    cur = it.p;
+  }
+  return path.concat(chain);
+}
+
+function navigateTo(folderId) {
+  currentFolder = folderId;
+  localStorage.setItem('lastFolder', folderId);
+  renderAll();
+  document.getElementById('scroll-area').scrollTop = 0;
+  if (window.innerWidth < 1024) toggleSidebar(false);
+}
+
+function renderNav() {
+  const tree = document.getElementById('nav-tree');
+  let html = '<p class="px-3 mb-2 text-xs font-bold text-ink-secondary uppercase tracking-wider">Pastas</p>';
+
+  function addFolderNode(item, depth) {
+    const isActive = item.i === currentFolder;
+    const pl = 12 + depth * 14;
+    html += `<div class="nav-item ${isActive ? 'active' : ''} rounded-xl px-3 py-2.5 mb-1 flex items-center gap-2.5" style="padding-left:${pl}px" data-nav="${esc(item.n.toLowerCase())}" data-id="${item.i}">
+      <i data-lucide="folder" class="w-4 h-4 ${isActive ? 'text-white' : 'text-ink-secondary'} flex-shrink-0"></i>
+      <span class="font-bold text-sm ${isActive ? 'text-white' : 'text-ink-secondary'} truncate">${esc(item.n)}</span>
+    </div>`;
+
+    (TREE[item.i] || []).filter((x) => x.m === 'f').forEach((child) => addFolderNode(child, depth + 1));
+  }
+
+  const rootActive = currentFolder === ROOT;
+  html += `<div class="nav-item ${rootActive ? 'active' : ''} rounded-xl px-3 py-2.5 mb-1 flex items-center gap-2.5" data-nav="início" data-id="${ROOT}">
+    <i data-lucide="home" class="w-4 h-4 ${rootActive ? 'text-white' : 'text-ink-secondary'}"></i>
+    <span class="font-bold text-sm ${rootActive ? 'text-white' : 'text-ink-secondary'}">Início</span>
+  </div>`;
+
+  (TREE[ROOT] || []).filter((x) => x.m === 'f').forEach((item) => addFolderNode(item, 1));
+  tree.innerHTML = html;
+
+  tree.querySelectorAll('.nav-item[data-id]').forEach((node) => {
+    node.addEventListener('click', () => navigateTo(node.getAttribute('data-id')));
+  });
+  lucide.createIcons();
+}
+
+function cardMarkup(item, idx) {
+  const isFolder = item.m === 'f';
+  const meta = typeMeta[item.m] || typeMeta.pdf;
+  const color = stripeColors[item.m] || '#3d6da5';
+  const kidCount = (TREE[item.i] || []).length;
+  const emoji = isFolder ? getFolderEmoji(item.n) : (item.m === 'v' ? '🎬' : '📄');
+  const subtitle = isFolder
+    ? `${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro`
+    : (item.d ? item.d : (item.m === 'v' ? 'Videoaula completa' : 'Pronta para baixar'));
+  const delay = Math.min(idx * 0.06, 0.5);
+
+  const thumbHtml = item.m === 'v' ? `
+    <div class="relative w-full overflow-hidden" style="height:160px;background:#111">
+      <img src="https://drive.google.com/thumbnail?id=${item.i}&sz=w400" alt="${esc(item.n)}"
+        class="w-full h-full object-cover"
+        onerror="this.parentElement.style.display='none'">
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div class="bg-black bg-opacity-40 rounded-full p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="32" height="32"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
+    </div>` : '';
+
+  return `<div class="card-item bg-white rounded-2xl border-2 border-warm-border overflow-hidden cursor-pointer fade-in flex flex-col" style="animation-delay:${delay}s" data-id="${item.i}" data-kind="${item.m}">
+    ${thumbHtml}
+    <div class="flex flex-1">
+      <div class="type-stripe" style="background:${color}"></div>
+      <div class="flex-1 p-4 md:p-5 flex flex-col justify-between relative z-10">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xl leading-none">${emoji}</span>
+            <span class="text-xs md:text-sm font-extrabold uppercase tracking-wider" style="color:${color}">${meta.label}</span>
+          </div>
+          <h3 class="card-title font-extrabold text-ink-primary text-base md:text-lg leading-snug mb-1.5">${esc(item.n)}</h3>
+          <p class="text-sm text-ink-secondary font-semibold leading-relaxed">${esc(subtitle)}</p>
+        </div>
+        <div class="mt-3">
+          <span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-extrabold text-sm md:text-base transition-all min-h-[44px]" style="color:${color};background:${color}15">
+            ${meta.action} →
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function attachCardActions(host) {
+  host.querySelectorAll('[data-id]').forEach((el) => {
+    const id = el.getAttribute('data-id');
+    const kind = el.getAttribute('data-kind');
+    if (!id) return;
+    el.addEventListener('click', () => {
+      const item = ITEMS[id] || (TREE[currentFolder] || []).find((x) => x.i === id);
+      if (!item) return;
+      if (kind === 'f' || item.m === 'f') {
+        navigateTo(id);
+      } else {
+        window.open(driveOpenUrl(item), '_blank', 'noopener');
+      }
+    });
+  });
+}
+
+function renderHero() {
+  const hero = document.getElementById('hero-section');
+  const badges = document.getElementById('trust-badges');
+  const quickPix = document.getElementById('quick-pix');
+  const isRoot = currentFolder === ROOT;
+  hero.classList.toggle('hidden', !isRoot);
+  badges.classList.toggle('hidden', !isRoot);
+  quickPix.classList.toggle('hidden', isRoot);
+
+  if (isRoot) {
+    const statsHtml = [
+      { emoji: '📄', label: 'receitas e PDFs', count: STATS.pdfs },
+      { emoji: '🎬', label: 'videoaulas', count: STATS.videos },
+      { emoji: '📂', label: 'categorias', count: STATS.folders }
+    ].filter(s => s.count > 0).map(s =>
+      `<div class="stat-pill rounded-xl px-4 py-2.5 flex items-center gap-2">
+        <span class="text-lg">${s.emoji}</span>
+        <span class="text-white font-extrabold text-lg">${s.count}</span>
+        <span class="text-white/80 font-semibold text-sm">${s.label}</span>
+      </div>`
+    ).join('');
+    document.getElementById('hero-stats').innerHTML = statsHtml;
+  }
+}
+
+function renderBreadcrumb() {
+  const path = buildPath(currentFolder);
+  const html = path.map((p, idx) => {
+    const isLast = idx === path.length - 1;
+    const cls = isLast ? 'bg-terra/10 text-terra' : 'bg-warm-dark/50 text-ink-secondary';
+    const attr = isLast ? '' : `data-id="${p.id}"`;
+    return `<button class="px-3.5 py-2 rounded-lg ${cls} font-bold text-sm min-h-[40px] hover:bg-warm-dark active:bg-warm-dark transition" ${attr}>${esc(p.name)}</button>${isLast ? '' : '<i data-lucide="chevron-right" class="w-4 h-4 text-ink-secondary/50"></i>'}`;
+  }).join('');
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = html;
+  bc.querySelectorAll('button[data-id]').forEach((btn) => {
+    btn.addEventListener('click', () => navigateTo(btn.getAttribute('data-id')));
+  });
+}
+
+function renderFolderInfo() {
+  const kids = TREE[currentFolder] || [];
+  const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
+  const folderName = current ? current.n : 'Todas as categorias';
+  const emoji = current ? getFolderEmoji(current.n) : '🏠';
+  document.getElementById('folder-title').textContent = `${emoji} ${folderName}`;
+
+  const fCount = kids.filter(x => x.m === 'f').length;
+  const vCount = kids.filter(x => x.m === 'v').length;
+  const pCount = kids.filter(x => x.m === 'pdf').length;
+  const parts = [];
+  if (fCount) parts.push(`📂 ${fCount} categoria${fCount > 1 ? 's' : ''}`);
+  if (vCount) parts.push(`🎬 ${vCount} vídeo${vCount > 1 ? 's' : ''}`);
+  if (pCount) parts.push(`📄 ${pCount} receita${pCount > 1 ? 's' : ''}`);
+  document.getElementById('folder-meta').textContent = parts.length ? parts.join('  •  ') : 'Pasta vazia';
+
+  const driveBtn = document.getElementById('drive-btn');
+  driveBtn.href = current ? (current.u || `https://drive.google.com/drive/folders/${current.i}`) : `https://drive.google.com/drive/folders/${ROOT}`;
+}
+
+function renderFolderItems() {
+  const kids = TREE[currentFolder] || [];
+  const ordered = [
+    ...kids.filter((x) => x.m === 'f'),
+    ...kids.filter((x) => x.m === 'v'),
+    ...kids.filter((x) => x.m === 'pdf')
+  ];
+
+  const grid = document.getElementById('content-grid');
+  if (!ordered.length) {
+    grid.innerHTML = `<div class="col-span-full text-center py-12">
+      <p class="text-5xl mb-4">🧶</p>
+      <p class="text-ink-secondary font-bold text-lg">Esta categoria está vazia</p>
+      <p class="text-ink-secondary/60 text-sm mt-1">Toque em "Voltar" para ver outras categorias</p>
+    </div>`;
+    lucide.createIcons();
+    return;
+  }
+  grid.innerHTML = ordered.map((item, idx) => cardMarkup(item, idx)).join('');
+  attachCardActions(grid);
+}
+
+function renderSearch(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    renderFolderItems();
+    return;
+  }
+
+  const hits = Object.values(ITEMS).filter((it) => it.n.toLowerCase().includes(q));
+  const grid = document.getElementById('content-grid');
+  document.getElementById('folder-title').textContent = `${hits.length} resultado${hits.length !== 1 ? 's' : ''} para "${query.trim()}"`;
+  document.getElementById('folder-meta').textContent = 'Busca em todo o acervo';
+  if (!hits.length) {
+    grid.innerHTML = `<div class="col-span-full text-center py-12">
+      <p class="text-5xl mb-4">🔍</p>
+      <p class="text-ink-secondary font-bold text-lg">Não encontrei nada com esse nome</p>
+      <p class="text-ink-secondary/60 text-sm mt-1">Tente escrever de outro jeito</p>
+    </div>`;
+    lucide.createIcons();
+    return;
+  }
+  grid.innerHTML = hits.map((item, idx) => cardMarkup(item, idx)).join('');
+  attachCardActions(grid);
+}
+
+function goBack() {
+  const path = buildPath(currentFolder);
+  if (path.length <= 1) return;
+  navigateTo(path[path.length - 2].id);
+}
+
+function toggleSidebar(forceOpen) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const open = typeof forceOpen === 'boolean' ? forceOpen : !sidebar.classList.contains('sidebar-open');
+  sidebar.classList.toggle('sidebar-open', open);
+  overlay.classList.toggle('overlay-visible', open);
+}
+
+function toggleBigText() {
+  largeText = !largeText;
+  document.getElementById('app-wrapper').classList.toggle('bigger-text', largeText);
+  document.getElementById('btn-big-text').classList.toggle('!bg-gradient-to-r', largeText);
+  document.getElementById('btn-big-text').classList.toggle('!from-terra', largeText);
+  document.getElementById('btn-big-text').classList.toggle('!to-terra-dark', largeText);
+  document.getElementById('btn-big-text').classList.toggle('!text-white', largeText);
+  document.getElementById('btn-big-text').classList.toggle('!border-terra', largeText);
+  document.getElementById('btn-big-text').classList.toggle('!shadow-lg', largeText);
+  localStorage.setItem('largeText', largeText ? '1' : '0');
+}
+
+function toggleSimple() {
+  simpleMode = !simpleMode;
+  document.getElementById('app-wrapper').classList.toggle('simple-mode', simpleMode);
+  document.getElementById('btn-simple').classList.toggle('!bg-gradient-to-r', simpleMode);
+  document.getElementById('btn-simple').classList.toggle('!from-terra', simpleMode);
+  document.getElementById('btn-simple').classList.toggle('!to-terra-dark', simpleMode);
+  document.getElementById('btn-simple').classList.toggle('!text-white', simpleMode);
+  document.getElementById('btn-simple').classList.toggle('!border-terra', simpleMode);
+  document.getElementById('btn-simple').classList.toggle('!shadow-lg', simpleMode);
+  localStorage.setItem('simpleMode', simpleMode ? '1' : '0');
+}
+
+function copyPix() {
+  const key = document.getElementById('pix-display').textContent.trim();
+  navigator.clipboard.writeText(key).then(() => {
+    const fb = document.getElementById('copy-feedback');
+    fb.style.opacity = '1';
+    setTimeout(() => { fb.style.opacity = '0'; }, 2000);
+  }).catch(() => {});
+}
+
+function copyPixQuick() {
+  navigator.clipboard.writeText('79991083702').then(() => {
+    const btn = document.getElementById('quick-pix-btn-text');
+    btn.textContent = '✅ Copiado!';
+    setTimeout(() => { btn.textContent = 'Copiar PIX'; }, 2000);
+  }).catch(() => {});
+}
+
+function scrollToPix() {
+  const pix = document.getElementById('pix-card');
+  if (pix) {
+    pix.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    pix.style.animation = 'none';
+    pix.offsetHeight;
+    pix.style.animation = 'glow-pulse 0.5s ease 2';
+  }
+}
+
+// Floating PIX button visibility on scroll
+(function() {
+  const scrollArea = document.getElementById('scroll-area');
+  const floatBtn = document.getElementById('float-pix');
+  if (scrollArea && floatBtn) {
+    scrollArea.addEventListener('scroll', function() {
+      floatBtn.classList.toggle('visible', this.scrollTop > 300);
+    });
+  }
+})();
+
+function filterNav(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('#nav-tree .nav-item').forEach((el) => {
+    const text = (el.getAttribute('data-nav') || '').toLowerCase();
+    el.style.display = !q || text.includes(q) ? '' : 'none';
+  });
+  renderSearch(query);
+}
+
+function renderAll() {
+  renderNav();
+  renderHero();
+  renderBreadcrumb();
+  renderFolderInfo();
+  renderFolderItems();
+  lucide.createIcons();
+}
+
+renderAll();
+  </script>
+</body>
+</html>
