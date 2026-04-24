@@ -440,7 +440,7 @@ tailwind.config = {
       <div class="relative z-10">
        <p class="text-white/80 text-sm md:text-base font-bold mb-2">🧶 Bem-vinda à sua biblioteca!</p>
        <h2 class="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3">Receitas, vídeos e PDFs de crochê <span class="underline decoration-white/40 underline-offset-4">organizados</span> para você</h2>
-       <p class="text-white/90 text-base md:text-lg font-semibold mb-5 leading-relaxed">Explore à vontade! Veja as categorias, abra os PDFs e assista os vídeos. Tudo isso é seu! 💕</p>
+       <p class="text-white/90 text-base md:text-lg font-semibold mb-5 leading-relaxed">Explore à vontade! Veja as categorias, abra os PDFs e assista os vídeos. Quando gostar, retribua com o valor que achar justo 💕</p>
        <div class="flex flex-wrap gap-2 md:gap-3" id="hero-stats"></div>
       </div>
      </div>
@@ -462,6 +462,20 @@ tailwind.config = {
       <div class="trust-badge rounded-xl px-3 md:px-4 py-2.5 flex items-center gap-2">
        <span class="text-base">♾️</span>
        <span class="text-sm font-bold text-ink-secondary">Acesso vitalício</span>
+      </div>
+     </div>
+
+     <!-- Sobre essa biblioteca (root only) -->
+     <div id="about-section" class="bg-white rounded-2xl border-2 border-warm-border p-4 md:p-6 mb-5 fade-in fade-in-2 shadow-md hidden">
+      <div class="flex items-start gap-3">
+       <div class="flex-shrink-0 w-11 h-11 rounded-full bg-gradient-to-br from-terra to-terra-dark flex items-center justify-center shadow-md">
+        <span class="text-xl">💛</span>
+       </div>
+       <div class="flex-1">
+        <h3 class="text-lg md:text-xl font-extrabold text-ink-primary mb-1">Sobre essa biblioteca</h3>
+        <p class="text-ink-secondary text-base font-semibold leading-relaxed">Aqui é a vovó! Reuni com muito carinho minhas receitas, PDFs e videoaulas favoritas pra você aprender no seu ritmo. <span class="text-ink-primary font-extrabold">Acesso vitalício</span>, com atualizações sempre que eu adicionar coisa nova.</p>
+        <p class="text-ink-secondary text-base font-semibold leading-relaxed mt-2">💕 Trabalho na <span class="text-terra font-extrabold">honestidade</span>: dê uma olhada à vontade e, se gostar, contribua com o valor que achar justo. <span class="text-ink-primary font-extrabold">Sugestão a partir de R$ 11,90</span> — você escolhe quanto vale pra você.</p>
+       </div>
       </div>
      </div>
 
@@ -1004,10 +1018,12 @@ function closeVideoPlayer() {
 function renderHero() {
   const hero = document.getElementById('hero-section');
   const badges = document.getElementById('trust-badges');
+  const about = document.getElementById('about-section');
   const quickPix = document.getElementById('quick-pix');
   const isRoot = currentFolder === ROOT;
   hero.classList.toggle('hidden', !isRoot);
   badges.classList.toggle('hidden', !isRoot);
+  if (about) about.classList.toggle('hidden', !isRoot);
   quickPix.classList.toggle('hidden', isRoot);
 
   if (isRoot) {
