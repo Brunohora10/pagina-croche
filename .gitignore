@@ -1,0 +1,9 @@
+# Variáveis de ambiente (contém chaves de API — nunca commitar)
+.env
+
+# Dependências
+node_modules/
+
+# Arquivos temporários
+*.tmp
+*.log

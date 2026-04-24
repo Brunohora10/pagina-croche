@@ -333,6 +333,38 @@
 
   .card-item { cursor: pointer; -webkit-tap-highlight-color: rgba(255,107,107,0.15); }
 
+  /* Player de vídeo simples e direto */
+  .video-modal-hidden { display: none !important; }
+  .video-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+  }
+  .video-modal-card {
+    width: min(1100px, 98vw);
+    max-height: 92vh;
+    background: #fff;
+    border-radius: 16px;
+    border: 2px solid #ffe6e6;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+  }
+  .video-frame-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+  .video-frame-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
   /* Mobile-first: botões e alvos de toque maiores */
   @media (max-width: 768px) {
     .topbar-area { padding: 10px 12px; gap: 8px; }
@@ -495,6 +527,39 @@ tailwind.config = {
    <span class="sm:hidden text-base">💳 PIX</span>
   </button>
 
+  <!-- Modal de vídeo (um clique e assistir) -->
+  <div id="video-modal" class="video-modal-backdrop video-modal-hidden" onclick="closeVideoPlayer()">
+   <div class="video-modal-card" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between gap-3 px-4 py-3 border-b-2 border-warm-border bg-warm-sidebar">
+     <p id="video-modal-title" class="font-extrabold text-ink-primary text-base md:text-lg truncate">Vídeo-aula</p>
+     <button onclick="closeVideoPlayer()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-sm hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition min-h-[44px]">
+      <i data-lucide="x" class="w-5 h-5"></i>
+      <span>Fechar</span>
+     </button>
+    </div>
+    <div class="video-frame-wrap">
+     <iframe id="video-modal-iframe" src="about:blank" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+    <div class="px-4 py-3 bg-warm-bg border-t-2 border-warm-border flex flex-col gap-2.5">
+     <p class="text-xs md:text-sm font-semibold text-ink-secondary">Se aparecer aviso de limite/login, toque no botão abaixo:</p>
+     <a id="video-modal-open-drive-main" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold text-sm min-h-[46px]">
+      <i data-lucide="log-in" class="w-4 h-4"></i>
+      <span id="video-modal-open-drive-main-label">Entrar no Google e assistir</span>
+     </a>
+     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+     <button id="video-modal-next-source" onclick="tryNextVideoSource()" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold text-sm min-h-[46px]">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+      <span id="video-modal-next-label">Não abriu? Tentar outra cópia</span>
+     </button>
+    <a id="video-modal-open-drive" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-bold text-sm text-ink-secondary hover:text-terra underline underline-offset-2"><span id="video-modal-open-drive-label">Abrir no Google Drive</span></a>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <script src="video-mirrors.js"></script>
+  <script src="pdf-cdn.js"></script>
+  <script src="video-bunny.js"></script>
   <script src="app-data.js"></script>
   <script>
 function esc(s) {
@@ -507,8 +572,226 @@ function esc(s) {
 
 function driveOpenUrl(item) {
   if (!item) return '#';
-  if (item.m === 'f') return item.u || `https://drive.google.com/drive/folders/${item.i}`;
+  const bunny = getBunnySourceForItem(item);
+  if (bunny && bunny.open) return bunny.open;
+  if (item.u) return item.u;
+  if (item.m === 'f') return `https://drive.google.com/drive/folders/${item.i}`;
   return `https://drive.google.com/file/d/${item.i}/view`;
+}
+
+function getBunnySourceForItem(item) {
+  if (!item || typeof window === 'undefined') return null;
+  const map = window.VIDEO_BUNNY || {};
+  const raw = map[item.i];
+  if (!raw) return null;
+
+  if (typeof raw === 'string') {
+    return {
+      id: raw,
+      lib: null,
+      embed: raw,
+      open: raw,
+      provider: 'bunny'
+    };
+  }
+
+  if (typeof raw === 'object') {
+    const lib = raw.lib || raw.libraryId || raw.library || null;
+    const vid = raw.vid || raw.videoId || raw.id || null;
+    const embed = raw.embed || (lib && vid ? `https://iframe.mediadelivery.net/embed/${encodeURIComponent(lib)}/${encodeURIComponent(vid)}` : null);
+    const open = raw.open || embed;
+    if (!embed && !open) return null;
+    return {
+      id: vid || open,
+      lib,
+      embed: embed || open,
+      open: open || embed,
+      provider: 'bunny'
+    };
+  }
+
+  return null;
+}
+
+function getDriveResourceKey(url) {
+  if (!url) return '';
+  try {
+    const parsed = new URL(url);
+    return parsed.searchParams.get('resourcekey') || '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function driveDownloadUrl(item) {
+  if (!item) return '#';
+  const rk = getDriveResourceKey(item.u);
+  const rkParam = rk ? `&resourcekey=${encodeURIComponent(rk)}` : '';
+  return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(item.i)}${rkParam}`;
+}
+
+function drivePreviewUrl(item) {
+  if (!item) return '#';
+  const bunny = getBunnySourceForItem(item);
+  if (bunny && bunny.embed) return bunny.embed;
+  const rk = getDriveResourceKey(item.u);
+  const rkParam = rk ? `?resourcekey=${encodeURIComponent(rk)}` : '';
+  return `https://drive.google.com/file/d/${encodeURIComponent(item.i)}/preview${rkParam}`;
+}
+
+function getPdfCdnUrl(item) {
+  if (!item || typeof window === 'undefined') return '';
+  const map = window.PDF_CDN_MAP || {};
+  const raw = map[item.i];
+  if (!raw) return '';
+  if (typeof raw === 'string') return raw;
+  if (typeof raw === 'object') return raw.url || raw.u || '';
+  return '';
+}
+
+function pdfOpenUrl(item) {
+  if (!item) return '#';
+  const cdn = getPdfCdnUrl(item);
+  if (cdn) return cdn;
+  return driveOpenUrl(item);
+}
+
+function extractDriveIdFromUrl(url) {
+  if (!url) return '';
+  const m = String(url).match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : '';
+}
+
+function isLikelyDriveId(value) {
+  return /^[a-zA-Z0-9_-]{20,}$/.test(String(value || ''));
+}
+
+function buildSourceFromId(id, openUrl, label) {
+  if (!id) return null;
+  const rk = getDriveResourceKey(openUrl);
+  const rkPart = rk ? `?resourcekey=${encodeURIComponent(rk)}` : '';
+  return {
+    id,
+    open: openUrl || `https://drive.google.com/file/d/${encodeURIComponent(id)}/view`,
+    preview: `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview${rkPart}`,
+    label: label || 'Fonte',
+    provider: 'drive'
+  };
+}
+
+function getMirrorSourcesForItem(itemId) {
+  if (!itemId || typeof window === 'undefined') return [];
+  const map = window.VIDEO_MIRRORS || {};
+  const mirrors = map[itemId];
+  return Array.isArray(mirrors) ? mirrors : [];
+}
+
+function buildVideoSources(item) {
+  const out = [];
+  if (!item) return out;
+
+  const bunny = getBunnySourceForItem(item);
+  if (bunny && bunny.embed) {
+    out.push({
+      id: `bunny:${bunny.id || item.i}`,
+      open: bunny.open || bunny.embed,
+      preview: bunny.embed,
+      label: 'Bunny',
+      provider: 'bunny'
+    });
+  }
+
+  const primary = buildSourceFromId(item.i, item.u || `https://drive.google.com/file/d/${encodeURIComponent(item.i)}/view`, 'Principal');
+  if (primary) out.push(primary);
+
+  const mirrors = [
+    ...(Array.isArray(item.a) ? item.a : []),
+    ...getMirrorSourcesForItem(item.i)
+  ];
+  mirrors.forEach((source, idx) => {
+    if (!source) return;
+
+    if (typeof source === 'string') {
+      const id = isLikelyDriveId(source) ? source : extractDriveIdFromUrl(source);
+      const built = buildSourceFromId(id, isLikelyDriveId(source) ? `https://drive.google.com/file/d/${id}/view` : source, `Cópia ${idx + 2}`);
+      if (built) out.push(built);
+      return;
+    }
+
+    if (typeof source === 'object') {
+      const id = source.i || extractDriveIdFromUrl(source.u || source.url || '');
+      const open = source.u || source.url || (id ? `https://drive.google.com/file/d/${id}/view` : '');
+      const built = buildSourceFromId(id, open, source.label || `Cópia ${idx + 2}`);
+      if (built) out.push(built);
+    }
+  });
+
+  // Remove duplicadas por id
+  const seen = new Set();
+  return out.filter((s) => {
+    if (!s || !s.id || seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
+  });
+}
+
+function getPreferredSourceIndex(videoId, total) {
+  if (!videoId || total <= 1) return 0;
+  const dayKey = new Date().toISOString().slice(0, 10);
+  const storageKey = `video-src-pref:${videoId}:${dayKey}`;
+  const saved = localStorage.getItem(storageKey);
+  if (saved !== null) {
+    const parsed = Number(saved);
+    if (!Number.isNaN(parsed)) return Math.abs(parsed) % total;
+  }
+  const randomIndex = Math.floor(Math.random() * total);
+  localStorage.setItem(storageKey, String(randomIndex));
+  return randomIndex;
+}
+
+let activeVideoSources = [];
+let activeVideoSourceIndex = 0;
+let activeVideoItem = null;
+
+function updateNextSourceButton() {
+  const btn = document.getElementById('video-modal-next-source');
+  const label = document.getElementById('video-modal-next-label');
+  if (!btn || !label) return;
+
+  const total = activeVideoSources.length;
+  if (total <= 1) {
+    btn.classList.add('hidden');
+    return;
+  }
+
+  btn.classList.remove('hidden');
+  const current = activeVideoSourceIndex + 1;
+  label.textContent = `Não abriu? Tentar outra cópia (${current}/${total})`;
+}
+
+function loadVideoSource(index) {
+  const frame = document.getElementById('video-modal-iframe');
+  const openDrive = document.getElementById('video-modal-open-drive');
+  const openDriveMain = document.getElementById('video-modal-open-drive-main');
+  const openDriveLabel = document.getElementById('video-modal-open-drive-label');
+  const openDriveMainLabel = document.getElementById('video-modal-open-drive-main-label');
+  if (!frame || !openDrive || !openDriveMain || !activeVideoSources.length) return;
+
+  activeVideoSourceIndex = ((index % activeVideoSources.length) + activeVideoSources.length) % activeVideoSources.length;
+  const source = activeVideoSources[activeVideoSourceIndex];
+  frame.src = source.preview;
+  openDrive.href = source.open;
+  openDriveMain.href = source.open;
+
+  const isBunny = source.provider === 'bunny';
+  if (openDriveLabel) openDriveLabel.textContent = isBunny ? 'Abrir em nova aba' : 'Abrir no Google Drive';
+  if (openDriveMainLabel) openDriveMainLabel.textContent = isBunny ? 'Abrir vídeo em tela separada' : 'Entrar no Google e assistir';
+  updateNextSourceButton();
+}
+
+function tryNextVideoSource() {
+  if (!activeVideoSources.length) return;
+  loadVideoSource(activeVideoSourceIndex + 1);
 }
 
 // --- Stats computation ---
@@ -618,6 +901,9 @@ function cardMarkup(item, idx) {
     ? `${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro`
     : (item.d ? item.d : (item.m === 'v' ? 'Videoaula completa' : 'Pronta para baixar'));
   const delay = Math.min(idx * 0.06, 0.5);
+  const fallbackDownload = item.m === 'v'
+    ? `<a href="${driveDownloadUrl(item)}" target="_blank" rel="noopener" data-stop-card-click="1" class="inline-flex items-center gap-1.5 mt-2 text-xs md:text-sm font-bold text-ink-secondary hover:text-terra underline underline-offset-2">⬇ Baixar vídeo se o Drive bloquear</a>`
+    : '';
 
   const thumbHtml = item.m === 'v' ? `
     <div class="relative w-full overflow-hidden" style="height:160px;background:#111">
@@ -648,6 +934,7 @@ function cardMarkup(item, idx) {
           <span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-extrabold text-sm md:text-base transition-all min-h-[44px]" style="color:${color};background:${color}15">
             ${meta.action} →
           </span>
+          ${fallbackDownload}
         </div>
       </div>
     </div>
@@ -655,6 +942,10 @@ function cardMarkup(item, idx) {
 }
 
 function attachCardActions(host) {
+  host.querySelectorAll('[data-stop-card-click="1"]').forEach((el) => {
+    el.addEventListener('click', (ev) => ev.stopPropagation());
+  });
+
   host.querySelectorAll('[data-id]').forEach((el) => {
     const id = el.getAttribute('data-id');
     const kind = el.getAttribute('data-kind');
@@ -664,11 +955,50 @@ function attachCardActions(host) {
       if (!item) return;
       if (kind === 'f' || item.m === 'f') {
         navigateTo(id);
+      } else if (item.m === 'v') {
+        openVideoPlayer(item);
+      } else if (item.m === 'pdf') {
+        window.open(pdfOpenUrl(item), '_blank', 'noopener');
       } else {
         window.open(driveOpenUrl(item), '_blank', 'noopener');
       }
     });
   });
+}
+
+function openVideoPlayer(item) {
+  const modal = document.getElementById('video-modal');
+  const title = document.getElementById('video-modal-title');
+  if (!modal || !title || !item) return;
+
+  title.textContent = item.n || 'Vídeo-aula';
+  activeVideoItem = item;
+  activeVideoSources = buildVideoSources(item);
+  if (!activeVideoSources.length) {
+    activeVideoSources = [{
+      id: item.i,
+      open: driveOpenUrl(item),
+      preview: drivePreviewUrl(item),
+      label: 'Principal'
+    }];
+  }
+  loadVideoSource(getPreferredSourceIndex(item.i, activeVideoSources.length));
+  modal.classList.remove('video-modal-hidden');
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+
+function closeVideoPlayer() {
+  const modal = document.getElementById('video-modal');
+  const frame = document.getElementById('video-modal-iframe');
+  if (!modal || !frame) return;
+
+  frame.src = 'about:blank';
+  modal.classList.add('video-modal-hidden');
+  document.body.style.overflow = '';
+  activeVideoItem = null;
+  activeVideoSources = [];
+  activeVideoSourceIndex = 0;
 }
 
 function renderHero() {
@@ -852,6 +1182,10 @@ function scrollToPix() {
     });
   }
 })();
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeVideoPlayer();
+});
 
 function filterNav(query) {
   const q = query.toLowerCase().trim();

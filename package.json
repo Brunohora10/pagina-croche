@@ -1,0 +1,9 @@
+{
+  "name": "pagina-croche",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}
