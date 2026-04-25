@@ -633,5 +633,21 @@ window.VIDEO_BUNNY = {
   "1TyeFqWJCi7EDzKi5OfPjhgFCjIy87kMx": {
     "lib": "644201",
     "vid": "d426596e-be85-4abc-ab40-ce3f2b2a63c4"
+  },
+  "1aUt7lfPpRl6RyDV7bpkoj83L4n8XCVe-": {
+    "lib": "644201",
+    "vid": "b1ffa63e-1cd9-4e9b-bfd3-39f8b0977128"
+  },
+  "15DH9yBGADhdEAUWth0-CG935pO0HrLrp": {
+    "lib": "644201",
+    "vid": "138fff4a-a538-4285-b3e0-a8940f53fdab"
+  },
+  "13v9UOn7ORJt1RlBd_CaAiZsddNOctSKi": {
+    "lib": "644201",
+    "vid": "9eb2e00c-af3f-42e2-92bd-f12f100e6922"
+  },
+  "1qbapeQ3LVNwnNYtxHEAnQbiTCErTPEvb": {
+    "lib": "644201",
+    "vid": "980ce8fa-f832-40af-b75c-adad8aeb8f86"
   }
 };
