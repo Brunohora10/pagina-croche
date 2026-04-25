@@ -1,4 +1,4 @@
-// Gerado automaticamente por scripts/fix-failed-videos.mjs
+// Gerado automaticamente
 // Chave: Drive file id | Valor: { lib, vid }
 
 window.VIDEO_BUNNY = {
@@ -649,5 +649,9 @@ window.VIDEO_BUNNY = {
   "1qbapeQ3LVNwnNYtxHEAnQbiTCErTPEvb": {
     "lib": "644201",
     "vid": "980ce8fa-f832-40af-b75c-adad8aeb8f86"
+  },
+  "1UP9Nl6xLlxFxakNkRoJw8diZrCF43ga2": {
+    "lib": "644201",
+    "vid": "bece8d32-863d-4cb8-af99-62a65b419d61"
   }
 };
