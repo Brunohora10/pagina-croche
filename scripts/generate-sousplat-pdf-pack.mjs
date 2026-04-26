@@ -21,8 +21,176 @@ function slugify(value) {
     .slice(0, 80);
 }
 
+function inferFocus(title) {
+  const value = String(title || '').toLowerCase();
+
+  if (value.includes('coracao')) {
+    return {
+      foco: 'Aplicacao de motivos de coracao e distribuicao simetrica',
+      cuidado: 'conte os espacos entre motivos para manter alinhamento visual',
+    };
+  }
+
+  if (value.includes('rendado')) {
+    return {
+      foco: 'Sequencia de aberturas e pontos altos para efeito rendado',
+      cuidado: 'controle a tensao para evitar borda ondulada',
+    };
+  }
+
+  if (value.includes('floral') || value.includes('margarida')) {
+    return {
+      foco: 'Montagem de motivos florais e acabamento entre petalas',
+      cuidado: 'mantenha repeticao de pontos identica em cada petala',
+    };
+  }
+
+  if (value.includes('tradicional') || value.includes('base')) {
+    return {
+      foco: 'Base circular classica com aumentos regulares por carreira',
+      cuidado: 'confira o total de pontos ao final de cada volta',
+    };
+  }
+
+  if (value.includes('porta-copo')) {
+    return {
+      foco: 'Peca compacta com contorno firme para manter estabilidade',
+      cuidado: 'evite excesso de aumentos para nao perder formato',
+    };
+  }
+
+  return {
+    foco: 'Construcao circular com acabamento decorativo final',
+    cuidado: 'acompanhe a contagem de pontos para manter a peca plana',
+  };
+}
+
 function buildMarkdown(title) {
-  return `# ${title}\n**Nível:** Iniciante a Intermediário\n**Formato:** Receita guiada da videoaula\n\n---\n\n## Materiais sugeridos\n\n- Fio de algodão para sousplat (cor principal)\n- Fio de algodão para detalhes (opcional)\n- Agulha de crochê 2,5 mm a 3,5 mm\n- Tesoura\n- Agulha de tapeçaria para arremates\n- Marcador de ponto\n\n---\n\n## Abreviações\n\n| Abreviação | Significado |\n|------------|-------------|\n| corr       | corrente    |\n| pb         | ponto baixo |\n| pa         | ponto alto  |\n| pp         | ponto baixíssimo |\n| aum        | aumento     |\n\n---\n\n## Passo a passo completo\n\n1. Separe todos os materiais e defina a paleta de cores da peça.\n2. Inicie com anel mágico e faça a base circular inicial conforme demonstrado na aula.\n3. Trabalhe as primeiras carreiras com aumentos distribuídos para manter o círculo plano.\n4. Marque o início de cada carreira para não perder a contagem.\n5. Continue a expansão da base alternando carreiras de aumento e de estabilização.\n6. Ao atingir o diâmetro principal, inicie a parte decorativa do sousplat.\n7. Execute a sequência de pontos de textura/renda da aula mantendo tensão uniforme.\n8. Faça os detalhes de borda (bicos, leques ou acabamento rendado) no ritmo da videoaula.\n9. Revise toda a circunferência para garantir simetria e bom caimento da peça.\n10. Arremate os fios pelo avesso com agulha de tapeçaria para acabamento limpo.\n11. Se necessário, faça bloqueio da peça para abrir os pontos e acertar o formato final.\n12. Finalize com inspeção visual: centro plano, borda regular e tamanho uniforme.\n\n---\n\n## Checklist de qualidade\n\n- Centro sem embabadar\n- Aumentos equilibrados\n- Borda regular em toda a volta\n- Arremates invisíveis\n- Peça plana e pronta para uso\n\n---\n\n## Observação\n\nEste PDF foi estruturado para acompanhamento direto da videoaula **${title}**, facilitando a execução passo a passo durante o aprendizado.`;
+  const { foco, cuidado } = inferFocus(title);
+
+  return `# ${title}
+**Nivel:** Iniciante a Intermediario
+**Formato:** Apostila tecnica para acompanhamento da videoaula
+
+---
+
+## Objetivo desta apostila
+
+Esta receita foi organizada para ajudar voce a executar a peca com seguranca, sem se perder nas carreiras. O foco tecnico principal desta aula e: **${foco}**.
+
+---
+
+## Materiais e configuracao recomendada
+
+- Fio 100% algodao (principal): 1 cone de 300 a 400 m para sousplat completo
+- Fio de detalhe (opcional): 50 a 150 m
+- Agulha de croche entre 2,5 mm e 3,5 mm
+- Tesoura, agulha de tapecaria e marcador de carreira
+- Fita metrica para validar diametro final
+
+### Controle de tensao (gauge)
+
+Antes de iniciar, faca uma amostra curta de 10 x 10 cm no ponto dominante da aula. Se a amostra ficar muito fechada, aumente 0,5 mm na agulha. Se ficar muito aberta, reduza 0,5 mm.
+
+---
+
+## Abreviacoes e leitura de receita
+
+| Abreviacao | Significado |
+|------------|-------------|
+| corr       | corrente |
+| pb         | ponto baixo |
+| mpa        | meio ponto alto |
+| pa         | ponto alto |
+| pp         | ponto baixissimo |
+| aum        | aumento |
+| dim        | diminuicao |
+| carr       | carreira |
+
+Observacao tecnica: em fontes internacionais pode haver diferenca entre termos US e UK. Nesta apostila, mantemos termos em portugues para evitar ambiguidade.
+
+---
+
+## Planejamento da execucao
+
+1. Leia a aula inteira uma vez antes de crochetar.
+2. Separe materiais e confirme a combinacao de cores.
+3. Defina a meta de diametro final (ex.: 35 a 38 cm para sousplat adulto).
+4. Trabalhe com marcador no inicio de toda carreira.
+5. Ao final de cada bloco, confira planicidade da peca sobre mesa reta.
+
+---
+
+## Passo a passo detalhado (carreira por carreira)
+
+1. Inicie com anel magico e ajuste o centro para fechamento completo.
+2. Execute a carreira inicial da base conforme a aula e marque o inicio.
+3. Na carreira seguinte, distribua aumentos de forma regular para manter circulo plano.
+4. Continue a expansao da base repetindo a logica de distribuicao apresentada na aula.
+5. Sempre que terminar uma carreira, conte os pontos e registre no quadro abaixo.
+6. Se a peca encanoar, adicione pontos de alivio na proxima volta.
+7. Se a peca ondular, reduza a frequencia de aumentos na volta seguinte.
+8. Ao atingir cerca de 70% do diametro final, prepare transicao para parte decorativa.
+9. Inicie a sequencia de textura/renda exatamente no ponto de referencia mostrado na aula.
+10. Mantenha altura de pontos uniforme para evitar diferenca visual entre setores.
+11. Repita o modulo decorativo em toda a circunferencia, sem alterar intervalo.
+12. Revise simetria geral antes de iniciar acabamento externo.
+13. Trabalhe a borda interna (quando houver) mantendo a mesma tensao da base.
+14. Trabalhe a borda externa com cuidado para nao repuxar nem abrir excesso.
+15. Aplique detalhes finais (bicos, leques, flores ou coracoes) seguindo ritmo constante.
+16. Na troca de cor, puxe a nova cor no ultimo fechamento do ponto anterior.
+17. Esconda todos os fios no avesso em percurso de pelo menos 6 a 8 cm.
+18. Faca bloqueio leve para assentar pontos e padronizar o diametro.
+
+### Registro rapido por carreira
+
+| Carreira | Contagem esperada | Contagem obtida | Ajuste necessario |
+|----------|--------------------|-----------------|-------------------|
+| 1 | conforme aula | | |
+| 2 | conforme aula | | |
+| 3 | conforme aula | | |
+| 4 | conforme aula | | |
+| 5+ | conforme aula | | |
+
+---
+
+## Erros comuns e correcao imediata
+
+- Centro levantando: excesso de pontos nas primeiras carreiras.
+- Borda ondulada: aumento acima do necessario nas voltas finais.
+- Borda fechando em cuia: aumentos insuficientes para o diametro atual.
+- Motivos desalinhados: falta de marcacao de inicio de carreira.
+- Acabamento rigido: tensao excessiva no ponto baixissimo final.
+
+Ponto de atencao desta peca: **${cuidado}**.
+
+---
+
+## Acabamento profissional
+
+1. Lave a peca delicadamente e retire excesso de agua sem torcer.
+2. Modele em superficie plana no diametro final.
+3. Deixe secar totalmente antes de guardar.
+4. Guarde sem dobra acentuada para preservar a borda.
+
+---
+
+## Checklist final de qualidade
+
+- Centro plano e bem fechado
+- Contagem de carreiras validada
+- Diametro final dentro da meta
+- Borda uniforme em 360 graus
+- Arremates invisiveis no avesso
+
+---
+
+## Fontes de referencia usadas nesta revisao
+
+- Craft Yarn Council: padronizacao de abreviacoes e boas praticas de leitura de receita.
+- Referencias tecnicas gerais de croche sobre gauge/tensao e controle de medidas em trabalho circular.
+
+Esta apostila acompanha a videoaula **${title}** e foi ampliada para oferecer mais clareza tecnica no processo.`;
 }
 
 async function loadAppData() {
@@ -64,7 +232,7 @@ async function main() {
   const payload = {
     rootFolderId: ROOT_SOUSPLAT_FOLDER_ID,
     generatedFolderId: GENERATED_FOLDER_ID,
-    generatedFolderName: 'PDFs Gerados das Videoaulas',
+    generatedFolderName: 'Apostilas em PDF das Videoaulas',
     items: generated,
   };
 

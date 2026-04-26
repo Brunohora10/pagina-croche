@@ -5,7 +5,7 @@
   const payload = {
   "rootFolderId": "1OvjIyd9dd_6IhvUjW-v-wRsQ2u_u2-CS",
   "generatedFolderId": "pdfgen_sousplat_folder",
-  "generatedFolderName": "PDFs Gerados das Videoaulas",
+  "generatedFolderName": "Apostilas em PDF das Videoaulas",
   "items": [
     {
       "videoId": "1uxq3VGYvuVVRnZJAkxq6rxUqg5_0fg6j",
