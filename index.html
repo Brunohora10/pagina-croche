@@ -996,7 +996,12 @@ function openVideoPlayer(item) {
       label: 'Principal'
     }];
   }
-  loadVideoSource(getPreferredSourceIndex(item.i, activeVideoSources.length));
+  const bunnyIndex = activeVideoSources.findIndex((source) => source.provider === 'bunny');
+  if (bunnyIndex >= 0) {
+    loadVideoSource(bunnyIndex);
+  } else {
+    loadVideoSource(getPreferredSourceIndex(item.i, activeVideoSources.length));
+  }
   modal.classList.remove('video-modal-hidden');
   document.body.style.overflow = 'hidden';
   lucide.createIcons();
