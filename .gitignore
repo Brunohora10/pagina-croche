@@ -1,8 +1,12 @@
 # Variáveis de ambiente (contém chaves de API — nunca commitar)
 .env
+croche-drive-5ebaa8724033.json
 
 # Dependências
 node_modules/
+
+# Artefatos locais
+video-thumbs/
 
 # Arquivos temporários
 *.tmp
