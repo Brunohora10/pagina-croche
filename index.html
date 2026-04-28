@@ -320,6 +320,41 @@
     }
   }
 
+  /* Botão flutuante WhatsApp */
+  .float-wa-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 50;
+    background: #25D366;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(37, 211, 102, 0.5);
+    transition: all 0.3s ease;
+    min-height: 56px;
+    min-width: 56px;
+    font-size: 1rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    font-weight: 800;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    animation: bounce-gentle 2.5s ease-in-out infinite;
+  }
+  @media (hover: hover) {
+    .float-wa-btn:hover {
+      box-shadow: 0 12px 40px rgba(37, 211, 102, 0.7);
+      transform: scale(1.1);
+    }
+  }
+  .float-wa-btn:active { transform: scale(0.95) !important; }
+  @media (max-width: 768px) {
+    .float-wa-btn { bottom: 16px; left: 16px; padding: 14px 18px; }
+  }
+
   @keyframes bounce-gentle {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
@@ -438,10 +473,14 @@ tailwind.config = {
      <!-- Hero Section (root only) -->
      <div id="hero-section" class="rounded-2xl p-5 md:p-8 mb-5 fade-in hero-card shadow-xl hidden">
       <div class="relative z-10">
-       <p class="text-white/80 text-sm md:text-base font-bold mb-2">🧶 Bem-vinda à sua biblioteca!</p>
-       <h2 class="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3">Receitas, vídeos e PDFs de crochê <span class="underline decoration-white/40 underline-offset-4">organizados</span> para você</h2>
-       <p class="text-white/90 text-base md:text-lg font-semibold mb-5 leading-relaxed">Explore à vontade! Veja as categorias, abra os PDFs e assista os vídeos. Quando gostar, retribua com o valor que achar justo 💕</p>
-       <div class="flex flex-wrap gap-2 md:gap-3" id="hero-stats"></div>
+       <p class="text-white/80 text-sm md:text-base font-bold mb-2">🧶 Bem-vinda!</p>
+       <h2 class="text-xl md:text-3xl font-extrabold text-white leading-tight mb-3">Veja os vídeos e PDFs de crochê — <span class="underline decoration-white/40 underline-offset-4">você vê primeiro, paga depois!</span></h2>
+       <p class="text-white/90 text-base font-semibold mb-4 leading-relaxed">Tudo organizado por categoria. Vídeos, receitas e PDFs prontos para você. Se gostar, combine um valor simbólico pelo WhatsApp 💕</p>
+       <div class="flex flex-wrap gap-2 md:gap-3 mb-4" id="hero-stats"></div>
+       <a href="https://wa.me/5579991084028?text=Ol%C3%A1!+Vi+a+biblioteca+de+croch%C3%AA+e+quero+ter+acesso+%F0%9F%A7%B6" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-6 py-4 bg-white text-terra font-extrabold rounded-xl shadow-lg active:scale-95 transition text-base min-h-[56px] w-full sm:w-auto">
+        <span class="text-xl">💬</span>
+        <span>Quero ter acesso — falar no WhatsApp</span>
+       </a>
       </div>
      </div>
 
@@ -474,7 +513,10 @@ tailwind.config = {
        <div class="flex-1">
         <h3 class="text-lg md:text-xl font-extrabold text-ink-primary mb-1">Sobre essa biblioteca</h3>
         <p class="text-ink-secondary text-base font-semibold leading-relaxed">Aqui é a vovó! Reuni com muito carinho minhas receitas, PDFs e videoaulas favoritas pra você aprender no seu ritmo. <span class="text-ink-primary font-extrabold">Acesso vitalício</span>, com atualizações sempre que eu adicionar coisa nova.</p>
-        <p class="text-ink-secondary text-base font-semibold leading-relaxed mt-2">💕 Trabalho na <span class="text-terra font-extrabold">honestidade</span>: dê uma olhada à vontade e, se gostar, <span class="text-ink-primary font-extrabold">contribua com o valor que achar justo</span> — você escolhe quanto vale pra você.</p>
+        <p class="text-ink-secondary text-base font-semibold leading-relaxed mt-2">💕 Trabalho na <span class="text-terra font-extrabold">honestidade</span>: você vê o material primeiro e só paga depois — um <span class="text-ink-primary font-extrabold">valor simbólico pelo WhatsApp</span>. Você escolhe o quanto vale pra você.</p>
+        <a href="https://wa.me/5579991084028?text=Ol%C3%A1!+Vi+a+biblioteca+de+croch%C3%AA+e+quero+ter+acesso+%F0%9F%A7%B6" target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-3 px-5 py-3 bg-[#25D366] text-white font-extrabold rounded-xl text-sm min-h-[48px] active:scale-95 transition">
+         <span>💬</span><span>Falar no WhatsApp para ter acesso</span>
+        </a>
        </div>
       </div>
      </div>
@@ -533,8 +575,12 @@ tailwind.config = {
        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-terra to-terra/80 flex items-center justify-center mx-auto mb-3 icon-pulse shadow-lg">
         <i data-lucide="heart" class="w-7 h-7 text-white"></i>
        </div>
-       <p id="pix-msg" class="text-ink-primary text-lg md:text-xl leading-relaxed font-extrabold">🧶 Gostou do material? Faça seu pagamento aqui!</p>
-       <p class="text-ink-secondary text-base mt-2 font-semibold leading-relaxed max-w-md mx-auto">Envie o valor combinado pelo PIX abaixo. É instantâneo e super fácil! Depois me manda o comprovante no WhatsApp 😉</p>
+       <p id="pix-msg" class="text-ink-primary text-lg md:text-xl leading-relaxed font-extrabold">🧶 Gostou? Pague um valor simbólico!</p>
+       <p class="text-ink-secondary text-base mt-2 font-semibold leading-relaxed max-w-md mx-auto">Combine o valor comigo pelo WhatsApp — ou pague direto pelo PIX e me mande o comprovante. Você escolhe o jeito mais fácil! 😉</p>
+       <a href="https://wa.me/5579991084028?text=Ol%C3%A1!+Gostei+da+biblioteca+de+croch%C3%AA+e+quero+combinar+o+pagamento+%F0%9F%A7%B6" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 mt-3 px-6 py-3.5 bg-[#25D366] text-white font-extrabold rounded-xl text-base min-h-[52px] active:scale-95 transition shadow-md">
+        <span class="text-xl">💬</span>
+        <span>Combinar pelo WhatsApp</span>
+       </a>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-3 mt-5 relative z-10">
        <div class="flex items-center justify-center gap-2 bg-gradient-to-r from-terra/15 to-terra/10 border-2 border-terra/40 rounded-xl px-4 py-3 shadow-md">
@@ -561,6 +607,13 @@ tailwind.config = {
    <span class="hidden sm:inline text-base">Pagar via PIX</span>
    <span class="sm:hidden text-base">💳 PIX</span>
   </button>
+
+  <!-- Floating WhatsApp Button -->
+  <a href="https://wa.me/5579991084028?text=Ol%C3%A1!+Vi+a+biblioteca+de+croch%C3%AA+e+quero+ter+acesso+%F0%9F%A7%B6" target="_blank" rel="noopener" class="float-wa-btn" aria-label="Falar no WhatsApp">
+   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+   <span class="hidden sm:inline text-base">Quero ter acesso</span>
+   <span class="sm:hidden text-base">💬</span>
+  </a>
 
   <!-- Modal de vídeo (um clique e assistir) -->
   <div id="video-modal" class="video-modal-backdrop video-modal-hidden" onclick="closeVideoPlayer()">
@@ -930,6 +983,13 @@ function shouldShowFolderGuide(folderId) {
   return folderId !== ROOT;
 }
 
+const DISPLAY_NAME_OVERRIDES = {
+  '###VIDEOS COMPLETOS###': '📹 Videoaulas Completas',
+};
+function displayItemName(n) {
+  return DISPLAY_NAME_OVERRIDES[n] || n;
+}
+
 function renderNav() {
   const tree = document.getElementById('nav-tree');
   let html = '<p class="px-3 mb-2 text-xs font-bold text-ink-secondary uppercase tracking-wider">Pastas</p>';
@@ -939,7 +999,7 @@ function renderNav() {
     const pl = 12 + depth * 14;
     html += `<div class="nav-item ${isActive ? 'active' : ''} rounded-xl px-3 py-2.5 mb-1 flex items-center gap-2.5" style="padding-left:${pl}px" data-nav="${esc(item.n.toLowerCase())}" data-id="${item.i}">
       <i data-lucide="folder" class="w-4 h-4 ${isActive ? 'text-white' : 'text-ink-secondary'} flex-shrink-0"></i>
-      <span class="font-bold text-sm ${isActive ? 'text-white' : 'text-ink-secondary'} truncate">${esc(item.n)}</span>
+      <span class="font-bold text-sm ${isActive ? 'text-white' : 'text-ink-secondary'} truncate">${esc(displayItemName(item.n))}</span>
     </div>`;
 
     (TREE[item.i] || []).filter((x) => x.m === 'f').forEach((child) => addFolderNode(child, depth + 1));
@@ -966,6 +1026,7 @@ function cardMarkup(item, idx) {
   const color = stripeColors[item.m] || '#3d6da5';
   const kidCount = (TREE[item.i] || []).length;
   const emoji = isFolder ? getFolderEmoji(item.n) : (item.m === 'v' ? '🎬' : '📄');
+  const dName = displayItemName(item.n);
   let subtitle = isFolder
     ? `${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro`
     : (item.d ? item.d : (item.m === 'v' ? 'Videoaula completa' : 'Pronta para baixar'));
@@ -998,7 +1059,7 @@ function cardMarkup(item, idx) {
             <span class="text-xl leading-none">${emoji}</span>
             <span class="text-xs md:text-sm font-extrabold uppercase tracking-wider" style="color:${color}">${meta.label}</span>
           </div>
-          <h3 class="card-title font-extrabold text-ink-primary text-base md:text-lg leading-snug mb-1.5">${esc(item.n)}</h3>
+          <h3 class="card-title font-extrabold text-ink-primary text-base md:text-lg leading-snug mb-1.5">${esc(dName)}</h3>
           <p class="text-sm text-ink-secondary font-semibold leading-relaxed">${esc(subtitle)}</p>
         </div>
         <div class="mt-3">
@@ -1122,7 +1183,7 @@ function renderBreadcrumb() {
 function renderFolderInfo() {
   const kids = TREE[currentFolder] || [];
   const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
-  const folderName = current ? current.n : 'Todas as categorias';
+  const folderName = current ? displayItemName(current.n) : 'Todas as categorias';
   const emoji = current ? getFolderEmoji(current.n) : '🏠';
   document.getElementById('folder-title').textContent = `${emoji} ${folderName}`;
 
@@ -1147,7 +1208,7 @@ function renderFolderItems() {
 
   const guideEnabled = shouldShowFolderGuide(currentFolder);
   const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
-  const folderName = current ? current.n : 'esta pasta';
+  const folderName = current ? displayItemName(current.n) : 'esta pasta';
 
   if (guideEnabled && folderViewMode === 'guide') {
     if (grid) grid.innerHTML = '';
