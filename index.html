@@ -496,8 +496,8 @@ tailwind.config = {
      <div class="flex items-center gap-1.5 mb-4 flex-wrap fade-in fade-in-1" id="breadcrumb">
       <button class="px-3 py-1.5 rounded-lg bg-warm-dark/50 text-ink-secondary font-bold text-sm hover:bg-warm-dark transition" onclick="navigateTo('root')">Início</button>
     </div>
-    <div id="sousplat-back-guide-wrap" class="hidden mb-4 fade-in fade-in-1">
-     <button onclick="backToSousplatGuide()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-sm md:text-base min-h-[48px] active:scale-95 transition">
+    <div id="folder-back-guide-wrap" class="hidden mb-4 fade-in fade-in-1">
+     <button onclick="backToFolderGuide()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-sm md:text-base min-h-[48px] active:scale-95 transition">
       <span>↩️</span>
       <span>Voltar ao guia de escolha</span>
      </button>
@@ -510,16 +510,16 @@ tailwind.config = {
        <span id="drive-btn-text">Abrir tudo no Google Drive</span>
       </a>
      </div><!-- Content Grid -->
-    <div id="sousplat-guide" class="hidden bg-white rounded-2xl border-2 border-terra/30 p-4 md:p-6 mb-5 shadow-md fade-in fade-in-2">
-     <p id="sousplat-guide-kicker" class="text-sm md:text-base font-extrabold text-terra uppercase tracking-wide mb-2">Guia rápido: A SOUSPLAT (PDF VIDEOS)</p>
+    <div id="folder-guide" class="hidden bg-white rounded-2xl border-2 border-terra/30 p-4 md:p-6 mb-5 shadow-md fade-in fade-in-2">
+     <p id="folder-guide-kicker" class="text-sm md:text-base font-extrabold text-terra uppercase tracking-wide mb-2">Guia rápido da pasta</p>
      <h3 class="text-2xl md:text-3xl font-extrabold text-ink-primary leading-tight mb-2">O que você quer ver?</h3>
-     <p id="sousplat-guide-meta" class="text-ink-secondary text-base md:text-lg font-semibold mb-4">Toque em uma opção abaixo.</p>
+     <p id="folder-guide-meta" class="text-ink-secondary text-base md:text-lg font-semibold mb-4">Toque em uma opção abaixo.</p>
      <div class="grid grid-cols-1 gap-3 md:gap-4">
-      <button id="guide-btn-videos" onclick="openSousplatVideos()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold text-base md:text-lg shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+      <button id="guide-btn-videos" onclick="openFolderVideos()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold text-base md:text-lg shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
        <span>🎬</span>
        <span>Entrar nos vídeos</span>
       </button>
-      <button id="guide-btn-pdfs" onclick="openSousplatPdfs()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-base md:text-lg active:scale-95 transition flex items-center justify-center gap-2">
+      <button id="guide-btn-pdfs" onclick="openFolderPdfs()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-base md:text-lg active:scale-95 transition flex items-center justify-center gap-2">
        <span>📄</span>
        <span>Entrar nos PDFs</span>
       </button>
@@ -844,7 +844,7 @@ const STATS = getStats();
 
 let currentFolder = localStorage.getItem('lastFolder') || ROOT;
 if (currentFolder !== ROOT && !ITEMS[currentFolder]) currentFolder = ROOT;
-let sousplatViewMode = 'all';
+let folderViewMode = 'all';
 
 let largeText = localStorage.getItem('largeText') === '1';
 let simpleMode = localStorage.getItem('simpleMode') === '1';
@@ -858,10 +858,9 @@ const typeMeta = {
   f: { label: 'Categoria', icon: 'folder', action: '📂 Explorar' }
 };
 
-const SOUSPLAT_ROOT_ID = '1OvjIyd9dd_6IhvUjW-v-wRsQ2u_u2-CS';
-const SOUSPLAT_VIDEO_FOLDER_ID = '1dd-uWkZ5nHT5Jy9kTwpG_9k_lIEdMRmv';
-const SOUSPLAT_PDF_FOLDER_ID = 'pdfgen_sousplat_folder';
-if (currentFolder === SOUSPLAT_ROOT_ID) sousplatViewMode = 'guide';
+if (currentFolder !== ROOT) {
+  folderViewMode = 'guide';
+}
 
 // Emojis por palavra-chave no nome da pasta (para idosas visualizarem melhor)
 const folderEmojis = [
@@ -895,23 +894,9 @@ function buildPath(folderId) {
   return path.concat(chain);
 }
 
-function getSousplatVideoFolderId() {
-  if (ITEMS[SOUSPLAT_VIDEO_FOLDER_ID]) return SOUSPLAT_VIDEO_FOLDER_ID;
-  const kids = TREE[SOUSPLAT_ROOT_ID] || [];
-  const byName = kids.find((x) => x.m === 'f' && /video/i.test(x.n));
-  return byName ? byName.i : null;
-}
-
-function getSousplatPdfFolderId() {
-  if (ITEMS[SOUSPLAT_PDF_FOLDER_ID]) return SOUSPLAT_PDF_FOLDER_ID;
-  const kids = TREE[SOUSPLAT_ROOT_ID] || [];
-  const byName = kids.find((x) => x.m === 'f' && /pdf|apostila/i.test(x.n));
-  return byName ? byName.i : null;
-}
-
 function navigateTo(folderId) {
   currentFolder = folderId;
-  sousplatViewMode = folderId === SOUSPLAT_ROOT_ID ? 'guide' : 'all';
+  folderViewMode = folderId === ROOT ? 'all' : 'guide';
   localStorage.setItem('lastFolder', folderId);
   renderAll();
   document.getElementById('scroll-area').scrollTop = 0;
@@ -939,6 +924,10 @@ function collectRecursiveItems(folderId, type) {
   }
 
   return out;
+}
+
+function shouldShowFolderGuide(folderId) {
+  return folderId !== ROOT;
 }
 
 function renderNav() {
@@ -982,14 +971,6 @@ function cardMarkup(item, idx) {
     : (item.d ? item.d : (item.m === 'v' ? 'Videoaula completa' : 'Pronta para baixar'));
   let actionLabel = meta.action;
 
-  if (isFolder && item.i === SOUSPLAT_VIDEO_FOLDER_ID) {
-    subtitle = 'Entre aqui para assistir as videoaulas de Sousplat';
-    actionLabel = '🎬 Entrar nos vídeos';
-  }
-  if (isFolder && item.i === SOUSPLAT_PDF_FOLDER_ID) {
-    subtitle = 'Entre aqui para abrir as apostilas em PDF';
-    actionLabel = '📄 Entrar nos PDFs';
-  }
   const delay = Math.min(idx * 0.06, 0.5);
   const fallbackDownload = item.m === 'v'
     ? `<a href="${driveDownloadUrl(item)}" target="_blank" rel="noopener" data-stop-card-click="1" class="inline-flex items-center gap-1.5 mt-2 text-xs md:text-sm font-bold text-ink-secondary hover:text-terra underline underline-offset-2">⬇ Baixar vídeo se o Drive bloquear</a>`
@@ -1162,9 +1143,13 @@ function renderFolderItems() {
   const grid = document.getElementById('content-grid');
   const kids = TREE[currentFolder] || [];
   const folderInfo = document.getElementById('folder-info-card');
-  const guide = document.getElementById('sousplat-guide');
+  const guide = document.getElementById('folder-guide');
 
-  if (currentFolder === SOUSPLAT_ROOT_ID && sousplatViewMode === 'guide') {
+  const guideEnabled = shouldShowFolderGuide(currentFolder);
+  const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
+  const folderName = current ? current.n : 'esta pasta';
+
+  if (guideEnabled && folderViewMode === 'guide') {
     if (grid) grid.innerHTML = '';
     if (folderInfo) folderInfo.classList.add('hidden');
     if (guide) guide.classList.remove('hidden');
@@ -1173,9 +1158,9 @@ function renderFolderItems() {
 
   if (folderInfo) folderInfo.classList.remove('hidden');
 
-  if (currentFolder === SOUSPLAT_ROOT_ID && sousplatViewMode === 'videos') {
+  if (guideEnabled && folderViewMode === 'videos') {
     const videos = collectRecursiveItems(currentFolder, 'v');
-    document.getElementById('folder-title').textContent = '🎬 Todos os vídeos de Sousplat';
+    document.getElementById('folder-title').textContent = `🎬 Todos os vídeos de ${folderName}`;
     document.getElementById('folder-meta').textContent = `🎬 ${videos.length} vídeo${videos.length === 1 ? '' : 's'}`;
     if (!videos.length) {
       grid.innerHTML = `<div class="col-span-full text-center py-12">
@@ -1190,9 +1175,9 @@ function renderFolderItems() {
     return;
   }
 
-  if (currentFolder === SOUSPLAT_ROOT_ID && sousplatViewMode === 'pdfs') {
+  if (guideEnabled && folderViewMode === 'pdfs') {
     const pdfs = collectRecursiveItems(currentFolder, 'pdf');
-    document.getElementById('folder-title').textContent = '📄 Todos os PDFs de Sousplat';
+    document.getElementById('folder-title').textContent = `📄 Todos os PDFs de ${folderName}`;
     document.getElementById('folder-meta').textContent = `📄 ${pdfs.length} receita${pdfs.length === 1 ? '' : 's'}`;
     if (!pdfs.length) {
       grid.innerHTML = `<div class="col-span-full text-center py-12">
@@ -1213,16 +1198,6 @@ function renderFolderItems() {
     ...kids.filter((x) => x.m === 'pdf')
   ];
 
-  if (currentFolder === SOUSPLAT_ROOT_ID) {
-    const videosId = getSousplatVideoFolderId();
-    const pdfId = getSousplatPdfFolderId();
-    ordered = [
-      ...ordered.filter((x) => x.i === videosId),
-      ...ordered.filter((x) => x.i === pdfId),
-      ...ordered.filter((x) => x.i !== videosId && x.i !== pdfId)
-    ];
-  }
-
   if (!ordered.length) {
     grid.innerHTML = `<div class="col-span-full text-center py-12">
       <p class="text-5xl mb-4">🧶</p>
@@ -1236,51 +1211,54 @@ function renderFolderItems() {
   attachCardActions(grid);
 }
 
-function renderSousplatGuide() {
-  const guide = document.getElementById('sousplat-guide');
+function renderFolderGuide() {
+  const guide = document.getElementById('folder-guide');
   const folderInfo = document.getElementById('folder-info-card');
   const grid = document.getElementById('content-grid');
   const quickPix = document.getElementById('quick-pix');
   const pixCard = document.getElementById('pix-card');
-  const backWrap = document.getElementById('sousplat-back-guide-wrap');
+  const backWrap = document.getElementById('folder-back-guide-wrap');
   if (!guide) return;
-  const showGuide = currentFolder === SOUSPLAT_ROOT_ID && sousplatViewMode === 'guide';
+  const showGuide = shouldShowFolderGuide(currentFolder) && folderViewMode === 'guide';
 
-  if (currentFolder === SOUSPLAT_ROOT_ID) {
-    const meta = document.getElementById('sousplat-guide-meta');
-    const videos = collectRecursiveItems(SOUSPLAT_ROOT_ID, 'v');
-    const pdfs = collectRecursiveItems(SOUSPLAT_ROOT_ID, 'pdf');
+  if (shouldShowFolderGuide(currentFolder)) {
+    const current = ITEMS[currentFolder];
+    const kicker = document.getElementById('folder-guide-kicker');
+    const meta = document.getElementById('folder-guide-meta');
+    const videos = collectRecursiveItems(currentFolder, 'v');
+    const pdfs = collectRecursiveItems(currentFolder, 'pdf');
+    if (kicker) kicker.textContent = `Guia rápido: ${current ? current.n : 'Pasta'}`;
     if (meta) meta.textContent = `🎬 ${videos.length} vídeos  •  📄 ${pdfs.length} PDFs`;
   }
 
   guide.classList.toggle('hidden', !showGuide);
-  if (backWrap) backWrap.classList.toggle('hidden', !(currentFolder === SOUSPLAT_ROOT_ID && (sousplatViewMode === 'videos' || sousplatViewMode === 'pdfs')));
+  if (backWrap) backWrap.classList.toggle('hidden', !(shouldShowFolderGuide(currentFolder) && (folderViewMode === 'videos' || folderViewMode === 'pdfs')));
   if (folderInfo) folderInfo.classList.toggle('hidden', showGuide);
   if (grid) grid.classList.toggle('hidden', showGuide);
   if (quickPix) quickPix.classList.toggle('hidden', showGuide);
   if (pixCard) pixCard.classList.toggle('hidden', showGuide);
 }
 
-function openSousplatVideos() {
-  sousplatViewMode = 'videos';
+function openFolderVideos() {
+  folderViewMode = 'videos';
   renderAll();
   document.getElementById('scroll-area').scrollTop = 0;
 }
 
-function openSousplatPdfs() {
-  sousplatViewMode = 'pdfs';
+function openFolderPdfs() {
+  folderViewMode = 'pdfs';
   renderAll();
   document.getElementById('scroll-area').scrollTop = 0;
 }
 
-function backToSousplatGuide() {
-  sousplatViewMode = 'guide';
+function backToFolderGuide() {
+  folderViewMode = 'guide';
   renderAll();
   document.getElementById('scroll-area').scrollTop = 0;
 }
 
 function renderSearch(query) {
-  sousplatViewMode = 'all';
+  folderViewMode = 'all';
   const q = query.trim().toLowerCase();
   if (!q) {
     renderFolderItems();
@@ -1398,7 +1376,7 @@ function renderAll() {
   renderHero();
   renderBreadcrumb();
   renderFolderInfo();
-  renderSousplatGuide();
+  renderFolderGuide();
   renderFolderItems();
   lucide.createIcons();
 }
