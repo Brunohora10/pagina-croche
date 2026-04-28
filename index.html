@@ -496,7 +496,7 @@ tailwind.config = {
      <div class="flex items-center gap-1.5 mb-4 flex-wrap fade-in fade-in-1" id="breadcrumb">
       <button class="px-3 py-1.5 rounded-lg bg-warm-dark/50 text-ink-secondary font-bold text-sm hover:bg-warm-dark transition" onclick="navigateTo('root')">Início</button>
      </div><!-- Folder Info Card -->
-     <div class="bg-white rounded-2xl border-2 border-warm-border p-4 md:p-6 mb-5 fade-in fade-in-2 shadow-md">
+    <div id="folder-info-card" class="bg-white rounded-2xl border-2 border-warm-border p-4 md:p-6 mb-5 fade-in fade-in-2 shadow-md">
       <h2 class="text-2xl md:text-3xl font-extrabold text-ink-primary mb-2" id="folder-title">Início</h2>
       <p class="text-ink-secondary text-base font-semibold mb-4" id="folder-meta">6 itens • Atualizado recentemente</p>
       <a href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold rounded-xl hover:shadow-xl active:scale-95 transition text-base shadow-lg min-h-[52px]" id="drive-btn">
@@ -504,6 +504,21 @@ tailwind.config = {
        <span id="drive-btn-text">Abrir tudo no Google Drive</span>
       </a>
      </div><!-- Content Grid -->
+    <div id="sousplat-guide" class="hidden bg-white rounded-2xl border-2 border-terra/30 p-4 md:p-6 mb-5 shadow-md fade-in fade-in-2">
+     <p class="text-sm md:text-base font-extrabold text-terra uppercase tracking-wide mb-2">Guia rápido do Sousplat</p>
+     <h3 class="text-2xl md:text-3xl font-extrabold text-ink-primary leading-tight mb-2">O que você quer ver?</h3>
+     <p class="text-ink-secondary text-base md:text-lg font-semibold mb-4">Toque em uma opção abaixo.</p>
+     <div class="grid grid-cols-1 gap-3 md:gap-4">
+      <button onclick="openSousplatVideos()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold text-base md:text-lg shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+       <span>🎬</span>
+       <span>Entrar nos vídeos</span>
+      </button>
+      <button onclick="openSousplatPdfs()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-base md:text-lg active:scale-95 transition flex items-center justify-center gap-2">
+       <span>📄</span>
+       <span>Entrar nos PDFs</span>
+      </button>
+     </div>
+    </div>
      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5" id="content-grid"></div>
 
      <!-- PIX Card (depois do conteúdo = a pessoa já viu valor) -->
@@ -823,6 +838,7 @@ const STATS = getStats();
 
 let currentFolder = localStorage.getItem('lastFolder') || ROOT;
 if (currentFolder !== ROOT && !ITEMS[currentFolder]) currentFolder = ROOT;
+let sousplatPdfView = false;
 
 let largeText = localStorage.getItem('largeText') === '1';
 let simpleMode = localStorage.getItem('simpleMode') === '1';
@@ -835,6 +851,10 @@ const typeMeta = {
   pdf: { label: 'Receita PDF', icon: 'file-text', action: '📄 Ver receita' },
   f: { label: 'Categoria', icon: 'folder', action: '📂 Explorar' }
 };
+
+const SOUSPLAT_ROOT_ID = '1OvjIyd9dd_6IhvUjW-v-wRsQ2u_u2-CS';
+const SOUSPLAT_VIDEO_FOLDER_ID = '1dd-uWkZ5nHT5Jy9kTwpG_9k_lIEdMRmv';
+const SOUSPLAT_PDF_FOLDER_ID = 'pdfgen_sousplat_folder';
 
 // Emojis por palavra-chave no nome da pasta (para idosas visualizarem melhor)
 const folderEmojis = [
@@ -868,12 +888,50 @@ function buildPath(folderId) {
   return path.concat(chain);
 }
 
+function getSousplatVideoFolderId() {
+  if (ITEMS[SOUSPLAT_VIDEO_FOLDER_ID]) return SOUSPLAT_VIDEO_FOLDER_ID;
+  const kids = TREE[SOUSPLAT_ROOT_ID] || [];
+  const byName = kids.find((x) => x.m === 'f' && /video/i.test(x.n));
+  return byName ? byName.i : null;
+}
+
+function getSousplatPdfFolderId() {
+  if (ITEMS[SOUSPLAT_PDF_FOLDER_ID]) return SOUSPLAT_PDF_FOLDER_ID;
+  const kids = TREE[SOUSPLAT_ROOT_ID] || [];
+  const byName = kids.find((x) => x.m === 'f' && /pdf|apostila/i.test(x.n));
+  return byName ? byName.i : null;
+}
+
 function navigateTo(folderId) {
+  sousplatPdfView = false;
   currentFolder = folderId;
   localStorage.setItem('lastFolder', folderId);
   renderAll();
   document.getElementById('scroll-area').scrollTop = 0;
   if (window.innerWidth < 1024) toggleSidebar(false);
+}
+
+function collectSousplatPdfItems() {
+  const out = [];
+  const seen = new Set();
+  const stack = [SOUSPLAT_ROOT_ID];
+
+  while (stack.length) {
+    const folderId = stack.pop();
+    const kids = TREE[folderId] || [];
+    kids.forEach((item) => {
+      if (item.m === 'pdf') {
+        if (!seen.has(item.i)) {
+          seen.add(item.i);
+          out.push(item);
+        }
+        return;
+      }
+      if (item.m === 'f') stack.push(item.i);
+    });
+  }
+
+  return out;
 }
 
 function renderNav() {
@@ -912,9 +970,19 @@ function cardMarkup(item, idx) {
   const color = stripeColors[item.m] || '#3d6da5';
   const kidCount = (TREE[item.i] || []).length;
   const emoji = isFolder ? getFolderEmoji(item.n) : (item.m === 'v' ? '🎬' : '📄');
-  const subtitle = isFolder
+  let subtitle = isFolder
     ? `${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro`
     : (item.d ? item.d : (item.m === 'v' ? 'Videoaula completa' : 'Pronta para baixar'));
+  let actionLabel = meta.action;
+
+  if (isFolder && item.i === SOUSPLAT_VIDEO_FOLDER_ID) {
+    subtitle = 'Entre aqui para assistir as videoaulas de Sousplat';
+    actionLabel = '🎬 Entrar nos vídeos';
+  }
+  if (isFolder && item.i === SOUSPLAT_PDF_FOLDER_ID) {
+    subtitle = 'Entre aqui para abrir as apostilas em PDF';
+    actionLabel = '📄 Entrar nos PDFs';
+  }
   const delay = Math.min(idx * 0.06, 0.5);
   const fallbackDownload = item.m === 'v'
     ? `<a href="${driveDownloadUrl(item)}" target="_blank" rel="noopener" data-stop-card-click="1" class="inline-flex items-center gap-1.5 mt-2 text-xs md:text-sm font-bold text-ink-secondary hover:text-terra underline underline-offset-2">⬇ Baixar vídeo se o Drive bloquear</a>`
@@ -947,7 +1015,7 @@ function cardMarkup(item, idx) {
         </div>
         <div class="mt-3">
           <span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-extrabold text-sm md:text-base transition-all min-h-[44px]" style="color:${color};background:${color}15">
-            ${meta.action} →
+            ${actionLabel} →
           </span>
           ${fallbackDownload}
         </div>
@@ -1084,14 +1152,48 @@ function renderFolderInfo() {
 }
 
 function renderFolderItems() {
+  const grid = document.getElementById('content-grid');
+
+  if (sousplatPdfView) {
+    const pdfs = collectSousplatPdfItems();
+    document.getElementById('folder-title').textContent = '📄 Todos os PDFs de Sousplat';
+    document.getElementById('folder-meta').textContent = `📄 ${pdfs.length} receitas`;
+
+    const driveBtn = document.getElementById('drive-btn');
+    const sousplatRoot = ITEMS[SOUSPLAT_ROOT_ID];
+    driveBtn.href = (sousplatRoot && sousplatRoot.u) ? sousplatRoot.u : `https://drive.google.com/drive/folders/${SOUSPLAT_ROOT_ID}`;
+
+    if (!pdfs.length) {
+      grid.innerHTML = `<div class="col-span-full text-center py-12">
+        <p class="text-5xl mb-4">📄</p>
+        <p class="text-ink-secondary font-bold text-lg">Nenhum PDF encontrado no Sousplat</p>
+      </div>`;
+      lucide.createIcons();
+      return;
+    }
+
+    grid.innerHTML = pdfs.map((item, idx) => cardMarkup(item, idx)).join('');
+    attachCardActions(grid);
+    return;
+  }
+
   const kids = TREE[currentFolder] || [];
-  const ordered = [
+  let ordered = [
     ...kids.filter((x) => x.m === 'f'),
     ...kids.filter((x) => x.m === 'v'),
     ...kids.filter((x) => x.m === 'pdf')
   ];
 
-  const grid = document.getElementById('content-grid');
+  if (currentFolder === SOUSPLAT_ROOT_ID) {
+    const videosId = getSousplatVideoFolderId();
+    const pdfId = getSousplatPdfFolderId();
+    ordered = [
+      ...ordered.filter((x) => x.i === videosId),
+      ...ordered.filter((x) => x.i === pdfId),
+      ...ordered.filter((x) => x.i !== videosId && x.i !== pdfId)
+    ];
+  }
+
   if (!ordered.length) {
     grid.innerHTML = `<div class="col-span-full text-center py-12">
       <p class="text-5xl mb-4">🧶</p>
@@ -1103,6 +1205,40 @@ function renderFolderItems() {
   }
   grid.innerHTML = ordered.map((item, idx) => cardMarkup(item, idx)).join('');
   attachCardActions(grid);
+}
+
+function renderSousplatGuide() {
+  const guide = document.getElementById('sousplat-guide');
+  const folderInfo = document.getElementById('folder-info-card');
+  const grid = document.getElementById('content-grid');
+  const quickPix = document.getElementById('quick-pix');
+  const pixCard = document.getElementById('pix-card');
+  if (!guide) return;
+  const onlyGuide = currentFolder === SOUSPLAT_ROOT_ID && !sousplatPdfView;
+
+  guide.classList.toggle('hidden', !onlyGuide);
+  if (folderInfo) folderInfo.classList.toggle('hidden', onlyGuide);
+  if (grid) grid.classList.toggle('hidden', onlyGuide);
+  if (quickPix) quickPix.classList.toggle('hidden', onlyGuide);
+  if (pixCard) pixCard.classList.toggle('hidden', onlyGuide);
+}
+
+function openSousplatVideos() {
+  sousplatPdfView = false;
+  const id = getSousplatVideoFolderId();
+  if (id) {
+    navigateTo(id);
+    return;
+  }
+  renderSearch('sousplat');
+}
+
+function openSousplatPdfs() {
+  currentFolder = SOUSPLAT_ROOT_ID;
+  localStorage.setItem('lastFolder', SOUSPLAT_ROOT_ID);
+  sousplatPdfView = true;
+  renderAll();
+  document.getElementById('scroll-area').scrollTop = 0;
 }
 
 function renderSearch(query) {
@@ -1223,6 +1359,7 @@ function renderAll() {
   renderHero();
   renderBreadcrumb();
   renderFolderInfo();
+  renderSousplatGuide();
   renderFolderItems();
   lucide.createIcons();
 }
