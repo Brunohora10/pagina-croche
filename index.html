@@ -428,8 +428,8 @@ tailwind.config = {
     <!-- Topbar -->
     <div class="topbar-area flex-shrink-0 bg-warm-sidebar border-b-2 border-warm-border px-3 py-2.5 md:px-4 md:py-3">
      <div class="flex items-center gap-2 flex-wrap">
-      <button onclick="toggleSidebar()" class="lg:hidden flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" aria-label="Menu"> <i data-lucide="menu" class="w-5 h-5"></i> <span>Menu</span> </button>
-      <button onclick="goBack()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition"> <i data-lucide="arrow-left" class="w-5 h-5"></i> <span>Voltar</span> </button>
+      <button id="btn-open-menu" onclick="toggleSidebar()" class="lg:hidden flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" aria-label="Ver pastas"> <i data-lucide="menu" class="w-5 h-5"></i> <span>Pastas</span> </button>
+      <button id="btn-go-back" onclick="goBack()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition"> <i data-lucide="arrow-left" class="w-5 h-5"></i> <span>Voltar</span> </button>
       <div class="flex-1"></div>
       <button onclick="toggleBigText()" id="btn-big-text" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" title="Aumentar texto"> <i data-lucide="type" class="w-5 h-5"></i> <span class="hidden sm:inline">Texto maior</span> <span class="sm:hidden">Aa+</span> </button>
       <button onclick="toggleSimple()" id="btn-simple" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" title="Modo simples"> <i data-lucide="eye" class="w-5 h-5"></i> <span class="hidden sm:inline">Modo simples</span> <span class="sm:hidden">Simples</span> </button>
@@ -462,7 +462,7 @@ tailwind.config = {
       </div>
       <div class="trust-badge rounded-xl px-3 md:px-4 py-2.5 flex items-center gap-2">
        <span class="text-base">♾️</span>
-       <span class="text-sm font-bold text-ink-secondary">Acesso vitalício</span>
+       <span class="text-sm font-bold text-ink-secondary">Acesso para sempre, sem prazo</span>
       </div>
      </div>
 
@@ -474,7 +474,7 @@ tailwind.config = {
        </div>
        <div class="flex-1">
         <h3 class="text-lg md:text-xl font-extrabold text-ink-primary mb-1">Sobre essa biblioteca</h3>
-        <p class="text-ink-secondary text-base font-semibold leading-relaxed">Aqui é a vovó! Reuni com muito carinho minhas receitas, PDFs e videoaulas favoritas pra você aprender no seu ritmo. <span class="text-ink-primary font-extrabold">Acesso vitalício</span>, com atualizações sempre que eu adicionar coisa nova.</p>
+        <p class="text-ink-secondary text-base font-semibold leading-relaxed">Aqui é a vovó! Reuni com muito carinho minhas receitas, PDFs e videoaulas favoritas pra você aprender no seu ritmo. <span class="text-ink-primary font-extrabold">Você acessa para sempre</span> e sempre que eu adicionar coisa nova, já aparece aqui pra você.</p>
         <p class="text-ink-secondary text-base font-semibold leading-relaxed mt-2">💕 Trabalho na <span class="text-terra font-extrabold">honestidade</span>: você vê o material primeiro e só paga depois — um <span class="text-ink-primary font-extrabold">valor simbólico via PIX</span>. Você escolhe o quanto vale pra você.</p>
        </div>
       </div>
@@ -845,8 +845,7 @@ function getStats() {
 }
 const STATS = getStats();
 
-let currentFolder = localStorage.getItem('lastFolder') || ROOT;
-if (currentFolder !== ROOT && !ITEMS[currentFolder]) currentFolder = ROOT;
+let currentFolder = ROOT;
 let folderViewMode = 'all';
 
 let largeText = localStorage.getItem('largeText') === '1';
@@ -858,7 +857,7 @@ const stripeColors = { video: '#2e6c57', v: '#2e6c57', pdf: '#3d6da5', folder: '
 const typeMeta = {
   v: { label: 'Vídeo-aula', icon: 'play-circle', action: '▶ Assistir agora' },
   pdf: { label: 'Receita PDF', icon: 'file-text', action: '📄 Ver receita' },
-  f: { label: 'Categoria', icon: 'folder', action: '📂 Explorar' }
+  f: { label: 'Categoria', icon: 'folder', action: '📂 Abrir' }
 };
 
 if (currentFolder !== ROOT) {
@@ -891,7 +890,7 @@ function buildPath(folderId) {
     guard.add(cur);
     const it = ITEMS[cur];
     if (!it) break;
-    chain.unshift({ id: it.i, name: it.n });
+    chain.unshift({ id: it.i, name: displayItemName(it.n, it.i) });
     cur = it.p;
   }
   return path.concat(chain);
@@ -900,7 +899,6 @@ function buildPath(folderId) {
 function navigateTo(folderId) {
   currentFolder = folderId;
   folderViewMode = folderId === ROOT ? 'all' : 'guide';
-  localStorage.setItem('lastFolder', folderId);
   renderAll();
   document.getElementById('scroll-area').scrollTop = 0;
   if (window.innerWidth < 1024) toggleSidebar(false);
@@ -935,24 +933,45 @@ function shouldShowFolderGuide(folderId) {
 
 const DISPLAY_NAME_OVERRIDES = {
   '###VIDEOS COMPLETOS###': '📹 Videoaulas Completas',
+  'A SOUSPLAT (PDF VIDEOS)': '🍽️ Sousplat',
+  'BIQUINES (PDF VIDEOS)': '👙 Biquínis',
+  'AS VIDEOS AULAS PARA INICIANTES': '🎬 Videoaulas para Iniciantes',
+  'padrões de crochê aconchegantes e pontos bonitos.': '🧶 Pontos e Padrões',
+  'VIDEOS PARA CROCHE COM VARIOS MODELOS': '🎬 Vídeos com Vários Modelos',
 };
-function displayItemName(n) {
+const DISPLAY_ID_OVERRIDES = {
+  '14QU1Zn3-HyvN6jsGK0JAN_duuV92d6n6': '📋 Tabela: Português x Inglês x Espanhol x Italiano x Francês x Alemão',
+};
+const FEATURED_ROOT_FOLDERS = [
+  '1OvjIyd9dd_6IhvUjW-v-wRsQ2u_u2-CS',
+  '16ZorTz15-oR-qR_eeFmsQE2-6M9oEh92',
+  '1boL3hc-hHzQBFmHaOMP80XhhuDlUntKH',
+  '1MiVA3J_ZUtT2mFaJwajknLOgNau0VtC1',
+  '10_Z5RZmX3IHvT2SHuny3QQb86BhyD-sF',
+  '1RrinllYQk7GZxPHl3lzIaCpE5DOue-Io',
+  '1z3Z5tzsrct7vwhA9eHyBGMogFC2yaI5h'
+];
+function displayItemName(n, id) {
+  if (id && DISPLAY_ID_OVERRIDES[id]) return DISPLAY_ID_OVERRIDES[id];
   return DISPLAY_NAME_OVERRIDES[n] || n;
 }
 
 function renderNav() {
   const tree = document.getElementById('nav-tree');
   let html = '<p class="px-3 mb-2 text-xs font-bold text-ink-secondary uppercase tracking-wider">Pastas</p>';
+  const openPath = new Set(buildPath(currentFolder).map((item) => item.id));
 
   function addFolderNode(item, depth) {
     const isActive = item.i === currentFolder;
     const pl = 12 + depth * 14;
-    html += `<div class="nav-item ${isActive ? 'active' : ''} rounded-xl px-3 py-2.5 mb-1 flex items-center gap-2.5" style="padding-left:${pl}px" data-nav="${esc(item.n.toLowerCase())}" data-id="${item.i}">
+    html += `<div class="nav-item ${isActive ? 'active' : ''} rounded-xl px-3 py-2.5 mb-1 flex items-center gap-2.5" style="padding-left:${pl}px" data-nav="${esc(`${item.n} ${displayItemName(item.n, item.i)}`.toLowerCase())}" data-id="${item.i}">
       <i data-lucide="folder" class="w-4 h-4 ${isActive ? 'text-white' : 'text-ink-secondary'} flex-shrink-0"></i>
-      <span class="font-bold text-sm ${isActive ? 'text-white' : 'text-ink-secondary'} truncate">${esc(displayItemName(item.n))}</span>
+      <span class="font-bold text-sm ${isActive ? 'text-white' : 'text-ink-secondary'} truncate">${esc(displayItemName(item.n, item.i))}</span>
     </div>`;
 
-    (TREE[item.i] || []).filter((x) => x.m === 'f').forEach((child) => addFolderNode(child, depth + 1));
+    if (openPath.has(item.i)) {
+      (TREE[item.i] || []).filter((x) => x.m === 'f').forEach((child) => addFolderNode(child, depth + 1));
+    }
   }
 
   const rootActive = currentFolder === ROOT;
@@ -976,7 +995,7 @@ function cardMarkup(item, idx) {
   const color = stripeColors[item.m] || '#3d6da5';
   const kidCount = (TREE[item.i] || []).length;
   const emoji = isFolder ? getFolderEmoji(item.n) : (item.m === 'v' ? '🎬' : '📄');
-  const dName = displayItemName(item.n);
+  const dName = displayItemName(item.n, item.i);
   let subtitle = isFolder
     ? `${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro`
     : (item.d ? item.d : (item.m === 'v' ? 'Videoaula completa' : 'Pronta para baixar'));
@@ -1019,6 +1038,27 @@ function cardMarkup(item, idx) {
           ${fallbackDownload}
         </div>
       </div>
+    </div>
+  </div>`;
+}
+
+function rootCategoryMarkup(item, idx) {
+  const kidCount = (TREE[item.i] || []).length;
+  const dName = displayItemName(item.n, item.i);
+  const emoji = getFolderEmoji(item.n);
+  const delay = Math.min(idx * 0.05, 0.35);
+
+  return `<div class="card-item bg-white rounded-2xl border-2 border-terra/20 overflow-hidden cursor-pointer fade-in shadow-sm" style="animation-delay:${delay}s" data-id="${item.i}" data-kind="f">
+    <div class="p-4 md:p-5">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-terra/10 flex items-center justify-center flex-shrink-0 text-2xl">${emoji}</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs md:text-sm font-extrabold uppercase tracking-wider text-terra mb-1">Categoria</p>
+          <h3 class="font-extrabold text-ink-primary text-lg md:text-xl leading-snug mb-1">${esc(dName)}</h3>
+          <p class="text-sm text-ink-secondary font-semibold leading-relaxed">${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro. Toque para abrir.</p>
+        </div>
+      </div>
+      <div class="mt-4 inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-terra/10 text-terra font-extrabold text-base min-h-[48px]">📂 Abrir categoria</div>
     </div>
   </div>`;
 }
@@ -1101,18 +1141,26 @@ function renderHero() {
 
   if (isRoot) {
     const statsHtml = [
-      { emoji: '📄', label: 'receitas e PDFs', count: STATS.pdfs },
-      { emoji: '🎬', label: 'videoaulas', count: STATS.videos },
-      { emoji: '📂', label: 'categorias', count: STATS.folders }
-    ].filter(s => s.count > 0).map(s =>
+      { emoji: '📄', label: 'Receitas e PDFs', count: STATS.pdfs },
+      { emoji: '🎬', label: 'Videoaulas', count: STATS.videos },
+      { emoji: '📂', label: 'Categorias', count: STATS.folders }
+    ].map(s =>
       `<div class="stat-pill rounded-xl px-4 py-2.5 flex items-center gap-2">
         <span class="text-lg">${s.emoji}</span>
-        <span class="text-white font-extrabold text-lg">${s.count}</span>
+        <span class="text-white font-extrabold text-base">${s.count}</span>
         <span class="text-white/80 font-semibold text-sm">${s.label}</span>
       </div>`
     ).join('');
     document.getElementById('hero-stats').innerHTML = statsHtml;
   }
+}
+
+function renderTopbarState() {
+  const isRoot = currentFolder === ROOT;
+  const menuBtn = document.getElementById('btn-open-menu');
+  const backBtn = document.getElementById('btn-go-back');
+  if (menuBtn) menuBtn.classList.remove('hidden');
+  if (backBtn) backBtn.classList.toggle('hidden', isRoot);
 }
 
 function renderBreadcrumb() {
@@ -1124,6 +1172,7 @@ function renderBreadcrumb() {
     return `<button class="px-3.5 py-2 rounded-lg ${cls} font-bold text-sm min-h-[40px] hover:bg-warm-dark active:bg-warm-dark transition" ${attr}>${esc(p.name)}</button>${isLast ? '' : '<i data-lucide="chevron-right" class="w-4 h-4 text-ink-secondary/50"></i>'}`;
   }).join('');
   const bc = document.getElementById('breadcrumb');
+  bc.classList.toggle('hidden', currentFolder === ROOT);
   bc.innerHTML = html;
   bc.querySelectorAll('button[data-id]').forEach((btn) => {
     btn.addEventListener('click', () => navigateTo(btn.getAttribute('data-id')));
@@ -1133,9 +1182,21 @@ function renderBreadcrumb() {
 function renderFolderInfo() {
   const kids = TREE[currentFolder] || [];
   const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
-  const folderName = current ? displayItemName(current.n) : 'Todas as categorias';
-  const emoji = current ? getFolderEmoji(current.n) : '🏠';
-  document.getElementById('folder-title').textContent = `${emoji} ${folderName}`;
+  const folderTitle = document.getElementById('folder-title');
+  const folderMeta = document.getElementById('folder-meta');
+  const driveBtn = document.getElementById('drive-btn');
+
+  if (!current) {
+    folderTitle.textContent = '🏠 Escolha uma categoria';
+    folderMeta.textContent = `📂 ${STATS.folders} categorias  •  🎬 ${STATS.videos} vídeos  •  📄 ${STATS.pdfs} receitas e PDFs`;
+    if (driveBtn) driveBtn.classList.add('hidden');
+    return;
+  }
+
+  const folderName = displayItemName(current.n, current.i);
+  const emoji = getFolderEmoji(current.n);
+  folderTitle.textContent = `${emoji} ${folderName}`;
+  if (driveBtn) driveBtn.classList.remove('hidden');
 
   const fCount = kids.filter(x => x.m === 'f').length;
   const vCount = kids.filter(x => x.m === 'v').length;
@@ -1144,9 +1205,7 @@ function renderFolderInfo() {
   if (fCount) parts.push(`📂 ${fCount} categoria${fCount > 1 ? 's' : ''}`);
   if (vCount) parts.push(`🎬 ${vCount} vídeo${vCount > 1 ? 's' : ''}`);
   if (pCount) parts.push(`📄 ${pCount} receita${pCount > 1 ? 's' : ''}`);
-  document.getElementById('folder-meta').textContent = parts.length ? parts.join('  •  ') : 'Pasta vazia';
-
-  const driveBtn = document.getElementById('drive-btn');
+  folderMeta.textContent = parts.length ? parts.join('  •  ') : 'Pasta vazia';
   driveBtn.href = current ? (current.u || `https://drive.google.com/drive/folders/${current.i}`) : `https://drive.google.com/drive/folders/${ROOT}`;
 }
 
@@ -1158,7 +1217,7 @@ function renderFolderItems() {
 
   const guideEnabled = shouldShowFolderGuide(currentFolder);
   const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
-  const folderName = current ? displayItemName(current.n) : 'esta pasta';
+  const folderName = current ? displayItemName(current.n, current.i) : 'esta pasta';
 
   if (guideEnabled && folderViewMode === 'guide') {
     if (grid) grid.innerHTML = '';
@@ -1209,6 +1268,35 @@ function renderFolderItems() {
     ...kids.filter((x) => x.m === 'pdf')
   ];
 
+  if (currentFolder === ROOT) {
+    const folders = FEATURED_ROOT_FOLDERS
+      .map((id) => kids.find((x) => x.i === id && x.m === 'f'))
+      .filter(Boolean);
+    const looseFiles = kids.filter((x) => x.m !== 'f');
+    grid.className = 'grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4';
+    const foldersHtml = folders.map((item, idx) => rootCategoryMarkup(item, idx)).join('');
+    const helperHtml = `<div class="col-span-full bg-white rounded-2xl border-2 border-warm-border p-4 md:p-5 shadow-sm fade-in">
+      <p class="text-sm font-extrabold text-terra uppercase tracking-wide mb-1">Mais categorias</p>
+      <h3 class="text-xl md:text-2xl font-extrabold text-ink-primary leading-tight mb-2">Quer ver o restante?</h3>
+      <p class="text-ink-secondary text-base font-semibold mb-3">Use a busca ou toque em Pastas para abrir todas as outras categorias.</p>
+      <button onclick="toggleSidebar(true)" class="lg:hidden inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-base min-h-[48px] active:scale-95 transition">
+        <span>📁</span>
+        <span>Ver todas as pastas</span>
+      </button>
+    </div>`;
+    const extrasHtml = looseFiles.length
+      ? `<div class="col-span-full pt-2">
+          <p class="text-sm font-extrabold text-ink-secondary uppercase tracking-wide mb-3">Receitas extras</p>
+        </div>${looseFiles.map((item, idx) => cardMarkup(item, folders.length + idx)).join('')}`
+      : '';
+
+    grid.innerHTML = foldersHtml + helperHtml + extrasHtml;
+    attachCardActions(grid);
+    return;
+  }
+
+  grid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5';
+
   if (!ordered.length) {
     grid.innerHTML = `<div class="col-span-full text-center py-12">
       <p class="text-5xl mb-4">🧶</p>
@@ -1238,7 +1326,7 @@ function renderFolderGuide() {
     const meta = document.getElementById('folder-guide-meta');
     const videos = collectRecursiveItems(currentFolder, 'v');
     const pdfs = collectRecursiveItems(currentFolder, 'pdf');
-    if (kicker) kicker.textContent = `Guia rápido: ${current ? current.n : 'Pasta'}`;
+    if (kicker) kicker.textContent = `Guia rápido: ${current ? displayItemName(current.n, current.i) : 'Pasta'}`;
     if (meta) meta.textContent = `🎬 ${videos.length} vídeos  •  📄 ${pdfs.length} PDFs`;
   }
 
@@ -1276,7 +1364,11 @@ function renderSearch(query) {
     return;
   }
 
-  const hits = Object.values(ITEMS).filter((it) => it.n.toLowerCase().includes(q));
+  const hits = Object.values(ITEMS).filter((it) => {
+    const raw = it.n.toLowerCase();
+    const shown = displayItemName(it.n, it.i).toLowerCase();
+    return raw.includes(q) || shown.includes(q);
+  });
   const grid = document.getElementById('content-grid');
   document.getElementById('folder-title').textContent = `${hits.length} resultado${hits.length !== 1 ? 's' : ''} para "${query.trim()}"`;
   document.getElementById('folder-meta').textContent = 'Busca em todo o acervo';
@@ -1385,6 +1477,7 @@ function filterNav(query) {
 function renderAll() {
   renderNav();
   renderHero();
+  renderTopbarState();
   renderBreadcrumb();
   renderFolderInfo();
   renderFolderGuide();
