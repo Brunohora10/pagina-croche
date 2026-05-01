@@ -1363,34 +1363,26 @@ function openPdfViewer(item) {
 
   const cdn = getPdfCdnUrl(item);
   const mobile = isMobileDevice();
-
-  if (mobile && !cdn) {
-    // No celular sem CDN o iframe do Google Drive geralmente não carrega.
-    // Mostra direto a tela com botões grandes — sem flicker de tentar carregar.
-    if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
-    if (loadMsg)  loadMsg.style.display = 'none';
-    if (fallback) fallback.style.display = 'flex';
-  } else {
-    const embedSrc = cdn ? cdn : drivePreviewUrl(item);
-    // Só troca o src se mudou — evita reload duplicado / flicker
-    if (frame.getAttribute('data-src') !== embedSrc) {
-      frame.setAttribute('data-src', embedSrc);
-      frame.src = embedSrc;
-    }
-
-    // Timeout de fallback se iframe não carregar
-    if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
-    _pdfFallbackTimer = setTimeout(() => {
-      if (myGen !== _pdfOpenGen) return;
-      const m = document.getElementById('pdf-modal');
-      if (!m || m.classList.contains('pdf-modal-hidden')) return;
-      if (loadMsg && loadMsg.style.display !== 'none') {
-        if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
-        if (loadMsg)  loadMsg.style.display = 'none';
-        if (fallback) fallback.style.display = 'flex';
-      }
-    }, mobile ? 4000 : 8000);
+  const embedSrc = cdn ? cdn : drivePreviewUrl(item);
+  // Só troca o src se mudou — evita reload duplicado / flicker
+  if (frame.getAttribute('data-src') !== embedSrc) {
+    frame.setAttribute('data-src', embedSrc);
+    frame.src = embedSrc;
   }
+
+  // Timeout de fallback: só mostra a tela com botões grandes se o iframe
+  // realmente não carregar (mais tempo no celular pra dar chance de carregar)
+  if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
+  _pdfFallbackTimer = setTimeout(() => {
+    if (myGen !== _pdfOpenGen) return;
+    const m = document.getElementById('pdf-modal');
+    if (!m || m.classList.contains('pdf-modal-hidden')) return;
+    if (loadMsg && loadMsg.style.display !== 'none') {
+      if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
+      if (loadMsg)  loadMsg.style.display = 'none';
+      if (fallback) fallback.style.display = 'flex';
+    }
+  }, mobile ? 10000 : 8000);
 
   modal.classList.remove('pdf-modal-hidden');
   document.body.style.overflow = 'hidden';
