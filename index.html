@@ -1334,14 +1334,6 @@ let _pdfOpenGen = 0;
 function openPdfViewer(item) {
   if (!item || !item.i) return;
 
-  // No celular: abre direto no navegador, sem modal
-  if (isMobileDevice()) {
-    const url = pdfOpenUrl(item);
-    if (url && url !== '#') window.open(url, '_blank', 'noopener');
-    return;
-  }
-
-  // Desktop: modal embutido
   const modal    = document.getElementById('pdf-modal');
   const nameEl   = document.getElementById('pdf-modal-name');
   const frame    = document.getElementById('pdf-modal-iframe');
@@ -1349,6 +1341,8 @@ function openPdfViewer(item) {
   const btnDl    = document.getElementById('pdf-btn-download');
   const loadMsg  = document.getElementById('pdf-loading-msg');
   const fallback = document.getElementById('pdf-mobile-fallback');
+  const fbTab    = document.getElementById('pdf-fb-newtab');
+  const fbDl     = document.getElementById('pdf-fb-download');
   if (!modal || !frame) return;
 
   // Geração: garante que timer de uma abertura antiga não afete a nova
@@ -1360,34 +1354,46 @@ function openPdfViewer(item) {
   const dlUrl   = driveDownloadUrl(item);
   if (btnTab) btnTab.href = openUrl;
   if (btnDl)  btnDl.href  = dlUrl;
+  if (fbTab)  fbTab.href  = openUrl;
+  if (fbDl)   fbDl.href   = dlUrl;
 
   if (fallback) fallback.style.display = 'none';
   if (frame)    frame.style.display = 'block';
   if (loadMsg)  loadMsg.style.display = '';
 
   const cdn = getPdfCdnUrl(item);
-  const embedSrc = cdn ? cdn : drivePreviewUrl(item);
-  frame.src = 'about:blank';
-  requestAnimationFrame(() => {
-    if (myGen === _pdfOpenGen) frame.src = embedSrc;
-  });
+  const mobile = isMobileDevice();
 
-  // Se em 8s não carregou, mostra botões de fallback
-  if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
-  _pdfFallbackTimer = setTimeout(() => {
-    if (myGen !== _pdfOpenGen) return; // outra abertura assumiu
-    const m = document.getElementById('pdf-modal');
-    if (!m || m.classList.contains('pdf-modal-hidden')) return;
-    if (loadMsg && loadMsg.style.display !== 'none') {
-      if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
-      if (loadMsg)  loadMsg.style.display = 'none';
-      if (fallback) fallback.style.display = 'flex';
+  if (mobile && !cdn) {
+    // No celular sem CDN o iframe do Google Drive geralmente não carrega.
+    // Mostra direto a tela com botões grandes — sem flicker de tentar carregar.
+    if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
+    if (loadMsg)  loadMsg.style.display = 'none';
+    if (fallback) fallback.style.display = 'flex';
+  } else {
+    const embedSrc = cdn ? cdn : drivePreviewUrl(item);
+    // Só troca o src se mudou — evita reload duplicado / flicker
+    if (frame.getAttribute('data-src') !== embedSrc) {
+      frame.setAttribute('data-src', embedSrc);
+      frame.src = embedSrc;
     }
-  }, 8000);
+
+    // Timeout de fallback se iframe não carregar
+    if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
+    _pdfFallbackTimer = setTimeout(() => {
+      if (myGen !== _pdfOpenGen) return;
+      const m = document.getElementById('pdf-modal');
+      if (!m || m.classList.contains('pdf-modal-hidden')) return;
+      if (loadMsg && loadMsg.style.display !== 'none') {
+        if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
+        if (loadMsg)  loadMsg.style.display = 'none';
+        if (fallback) fallback.style.display = 'flex';
+      }
+    }, mobile ? 4000 : 8000);
+  }
 
   modal.classList.remove('pdf-modal-hidden');
   document.body.style.overflow = 'hidden';
-  lucide.createIcons();
 }
 
 function closePdfViewer() {
@@ -1397,7 +1403,9 @@ function closePdfViewer() {
   const loadMsg  = document.getElementById('pdf-loading-msg');
   if (!modal || !frame) return;
   if (_pdfFallbackTimer) { clearTimeout(_pdfFallbackTimer); _pdfFallbackTimer = null; }
+  _pdfOpenGen++;
   frame.src = 'about:blank';
+  frame.removeAttribute('data-src');
   frame.style.display = 'block';
   if (fallback) fallback.style.display = 'none';
   if (loadMsg)  loadMsg.style.display = '';
