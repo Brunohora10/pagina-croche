@@ -343,13 +343,18 @@
     z-index: 90;
     display: flex;
     flex-direction: column;
+    /* Garante altura real no iOS Safari */
+    height: 100vh;
+    height: 100svh;
   }
   .pdf-modal-inner {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    max-height: 100dvh;
+    flex: 1 1 auto;
+    min-height: 0;
     background: #faf8f5;
+    /* fallback height para browsers antigos */
+    height: 100%;
   }
   .pdf-modal-header {
     display: flex;
@@ -364,20 +369,56 @@
   .pdf-modal-title-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .pdf-modal-title-wrap .emoji { font-size: 2rem; line-height: 1; flex-shrink: 0; }
   .pdf-modal-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #b45309; margin-bottom: 2px; }
-  .pdf-modal-name { font-size: 1.1rem; font-weight: 800; color: #1c1917; line-height: 1.25; }
+  .pdf-modal-name { font-size: 1.05rem; font-weight: 800; color: #1c1917; line-height: 1.25; }
   @media (min-width: 640px) { .pdf-modal-name { font-size: 1.25rem; } }
   .pdf-frame-wrap {
-    flex: 1;
+    flex: 1 1 auto;
+    min-height: 0;
     overflow: hidden;
     background: #525659;
     position: relative;
   }
   .pdf-frame-wrap iframe {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     border: 0;
     display: block;
   }
+  /* Tela de fallback para mobile (quando iframe não carrega) */
+  .pdf-mobile-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 32px 20px;
+    height: 100%;
+    background: #faf8f5;
+    text-align: center;
+  }
+  .pdf-mobile-fallback .pdf-icon { font-size: 5rem; line-height: 1; }
+  .pdf-mobile-fallback .pdf-hint { font-size: 1.1rem; font-weight: 700; color: #44403c; line-height: 1.5; }
+  .pdf-mobile-fallback .pdf-hint-sub { font-size: 0.95rem; font-weight: 500; color: #78716c; margin-top: 4px; }
+  .pdf-mobile-fallback a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+    padding: 18px 24px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    min-height: 64px;
+    text-decoration: none;
+    transition: filter 0.15s;
+  }
+  .pdf-mobile-fallback a:hover { filter: brightness(0.92); }
+  .pdf-mobile-fallback .pdf-open-btn { background: linear-gradient(135deg, #c2410c, #9a3412); color: #fff; }
+  .pdf-mobile-fallback .pdf-dl-btn   { background: #fff; color: #c2410c; border: 2.5px solid #c2410c; }
   .pdf-modal-footer {
     display: flex;
     flex-wrap: wrap;
@@ -693,14 +734,29 @@ tailwind.config = {
 
     <!-- Área do PDF -->
     <div class="pdf-frame-wrap">
-     <!-- Texto de aviso enquanto carrega -->
+     <!-- Mensagem de carregando (desktop) -->
      <p id="pdf-loading-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:1.1rem;font-weight:700;text-align:center;pointer-events:none;z-index:1;padding:0 20px">
-      ⏳ Carregando receita… <br><span style="font-size:0.9rem;font-weight:500;opacity:0.8">Se demorar, use o botão "Abrir em nova aba" abaixo.</span>
+      ⏳ Carregando receita…
      </p>
+     <!-- Iframe para desktop -->
      <iframe id="pdf-modal-iframe" src="about:blank"
        referrerpolicy="strict-origin-when-cross-origin"
        onload="document.getElementById('pdf-loading-msg').style.display='none'">
      </iframe>
+     <!-- Fallback para mobile: aparece no lugar do iframe quando não carrega -->
+     <div id="pdf-mobile-fallback" class="pdf-mobile-fallback" style="display:none">
+      <div class="pdf-icon">📄</div>
+      <div>
+       <p class="pdf-hint">No celular, o PDF abre no próprio navegador.</p>
+       <p class="pdf-hint-sub">Toque no botão abaixo para ver a receita:</p>
+      </div>
+      <a id="pdf-fb-newtab" href="#" target="_blank" rel="noopener" class="pdf-open-btn">
+       📖 Ver receita agora
+      </a>
+      <a id="pdf-fb-download" href="#" target="_blank" rel="noopener" class="pdf-dl-btn">
+       ⬇️ Baixar PDF
+      </a>
+     </div>
     </div>
 
     <!-- Rodapé com botões grandes -->
@@ -1256,14 +1312,24 @@ function closeVideoPlayer() {
 }
 
 // ===== Visualizador de PDF embutido =====
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+         (window.matchMedia && window.matchMedia('(max-width: 768px)').matches && 'ontouchstart' in window);
+}
+
+let _pdfFallbackTimer = null;
+
 function openPdfViewer(item) {
   if (!item) return;
-  const modal   = document.getElementById('pdf-modal');
-  const nameEl  = document.getElementById('pdf-modal-name');
-  const frame   = document.getElementById('pdf-modal-iframe');
-  const btnTab  = document.getElementById('pdf-btn-newtab');
-  const btnDl   = document.getElementById('pdf-btn-download');
-  const loadMsg = document.getElementById('pdf-loading-msg');
+  const modal    = document.getElementById('pdf-modal');
+  const nameEl   = document.getElementById('pdf-modal-name');
+  const frame    = document.getElementById('pdf-modal-iframe');
+  const btnTab   = document.getElementById('pdf-btn-newtab');
+  const btnDl    = document.getElementById('pdf-btn-download');
+  const loadMsg  = document.getElementById('pdf-loading-msg');
+  const fallback = document.getElementById('pdf-mobile-fallback');
+  const fbTab    = document.getElementById('pdf-fb-newtab');
+  const fbDl     = document.getElementById('pdf-fb-download');
   if (!modal || !frame) return;
 
   // Título
@@ -1271,18 +1337,44 @@ function openPdfViewer(item) {
 
   // URLs
   const openUrl = pdfOpenUrl(item);
-  if (btnTab)  btnTab.href = openUrl;
-  if (btnDl)   btnDl.href  = driveDownloadUrl(item);
+  const dlUrl   = driveDownloadUrl(item);
+  if (btnTab) btnTab.href = openUrl;
+  if (btnDl)  btnDl.href  = dlUrl;
+  if (fbTab)  fbTab.href  = openUrl;
+  if (fbDl)   fbDl.href   = dlUrl;
 
-  // Embed: CDN direto ou Google Drive preview
-  const cdn = getPdfCdnUrl(item);
-  const embedSrc = cdn ? cdn : drivePreviewUrl(item);
+  const mobile = isMobileDevice();
+  const cdn    = getPdfCdnUrl(item);
 
-  // Reinicia loading msg
-  if (loadMsg) loadMsg.style.display = '';
-  frame.src = 'about:blank';
-  // Pequeno delay para o about:blank ser carregado antes de trocar a src
-  requestAnimationFrame(() => { frame.src = embedSrc; });
+  if (mobile && !cdn) {
+    // No mobile sem CDN: Google Drive iframe geralmente não funciona.
+    // Mostra diretamente a tela de fallback com botões grandes.
+    if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
+    if (loadMsg)  loadMsg.style.display = 'none';
+    if (fallback) fallback.style.display = 'flex';
+  } else {
+    // Desktop ou CDN disponível: tenta embutir
+    if (fallback) fallback.style.display = 'none';
+    if (frame)    frame.style.display = 'block';
+    if (loadMsg)  loadMsg.style.display = '';
+
+    const embedSrc = cdn ? cdn : drivePreviewUrl(item);
+    frame.src = 'about:blank';
+    requestAnimationFrame(() => { frame.src = embedSrc; });
+
+    // Se em 8s o iframe ainda não carregou, mostra fallback
+    if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
+    _pdfFallbackTimer = setTimeout(() => {
+      if (!document.getElementById('pdf-modal').classList.contains('pdf-modal-hidden')) {
+        if (loadMsg && loadMsg.style.display !== 'none') {
+          // iframe não disparou onload — mostra fallback
+          if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
+          if (loadMsg)  loadMsg.style.display = 'none';
+          if (fallback) fallback.style.display = 'flex';
+        }
+      }
+    }, 8000);
+  }
 
   modal.classList.remove('pdf-modal-hidden');
   document.body.style.overflow = 'hidden';
@@ -1290,10 +1382,16 @@ function openPdfViewer(item) {
 }
 
 function closePdfViewer() {
-  const modal = document.getElementById('pdf-modal');
-  const frame = document.getElementById('pdf-modal-iframe');
+  const modal    = document.getElementById('pdf-modal');
+  const frame    = document.getElementById('pdf-modal-iframe');
+  const fallback = document.getElementById('pdf-mobile-fallback');
+  const loadMsg  = document.getElementById('pdf-loading-msg');
   if (!modal || !frame) return;
+  if (_pdfFallbackTimer) { clearTimeout(_pdfFallbackTimer); _pdfFallbackTimer = null; }
   frame.src = 'about:blank';
+  frame.style.display = 'block';
+  if (fallback) fallback.style.display = 'none';
+  if (loadMsg)  loadMsg.style.display = '';
   modal.classList.add('pdf-modal-hidden');
   document.body.style.overflow = '';
 }
