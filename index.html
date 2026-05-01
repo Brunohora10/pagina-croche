@@ -1321,6 +1321,14 @@ let _pdfFallbackTimer = null;
 
 function openPdfViewer(item) {
   if (!item) return;
+
+  // No celular: abre direto no navegador, sem modal
+  if (isMobileDevice()) {
+    window.open(pdfOpenUrl(item), '_blank', 'noopener');
+    return;
+  }
+
+  // Desktop: modal embutido
   const modal    = document.getElementById('pdf-modal');
   const nameEl   = document.getElementById('pdf-modal-name');
   const frame    = document.getElementById('pdf-modal-iframe');
@@ -1328,53 +1336,35 @@ function openPdfViewer(item) {
   const btnDl    = document.getElementById('pdf-btn-download');
   const loadMsg  = document.getElementById('pdf-loading-msg');
   const fallback = document.getElementById('pdf-mobile-fallback');
-  const fbTab    = document.getElementById('pdf-fb-newtab');
-  const fbDl     = document.getElementById('pdf-fb-download');
   if (!modal || !frame) return;
 
-  // Título
   if (nameEl) nameEl.textContent = item.n || 'Receita PDF';
 
-  // URLs
   const openUrl = pdfOpenUrl(item);
   const dlUrl   = driveDownloadUrl(item);
   if (btnTab) btnTab.href = openUrl;
   if (btnDl)  btnDl.href  = dlUrl;
-  if (fbTab)  fbTab.href  = openUrl;
-  if (fbDl)   fbDl.href   = dlUrl;
 
-  const mobile = isMobileDevice();
-  const cdn    = getPdfCdnUrl(item);
+  if (fallback) fallback.style.display = 'none';
+  if (frame)    frame.style.display = 'block';
+  if (loadMsg)  loadMsg.style.display = '';
 
-  if (mobile && !cdn) {
-    // No mobile sem CDN: Google Drive iframe geralmente não funciona.
-    // Mostra diretamente a tela de fallback com botões grandes.
-    if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
-    if (loadMsg)  loadMsg.style.display = 'none';
-    if (fallback) fallback.style.display = 'flex';
-  } else {
-    // Desktop ou CDN disponível: tenta embutir
-    if (fallback) fallback.style.display = 'none';
-    if (frame)    frame.style.display = 'block';
-    if (loadMsg)  loadMsg.style.display = '';
+  const cdn = getPdfCdnUrl(item);
+  const embedSrc = cdn ? cdn : drivePreviewUrl(item);
+  frame.src = 'about:blank';
+  requestAnimationFrame(() => { frame.src = embedSrc; });
 
-    const embedSrc = cdn ? cdn : drivePreviewUrl(item);
-    frame.src = 'about:blank';
-    requestAnimationFrame(() => { frame.src = embedSrc; });
-
-    // Se em 8s o iframe ainda não carregou, mostra fallback
-    if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
-    _pdfFallbackTimer = setTimeout(() => {
-      if (!document.getElementById('pdf-modal').classList.contains('pdf-modal-hidden')) {
-        if (loadMsg && loadMsg.style.display !== 'none') {
-          // iframe não disparou onload — mostra fallback
-          if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
-          if (loadMsg)  loadMsg.style.display = 'none';
-          if (fallback) fallback.style.display = 'flex';
-        }
+  // Se em 8s não carregou, mostra botões de fallback
+  if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
+  _pdfFallbackTimer = setTimeout(() => {
+    if (!document.getElementById('pdf-modal').classList.contains('pdf-modal-hidden')) {
+      if (loadMsg && loadMsg.style.display !== 'none') {
+        if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
+        if (loadMsg)  loadMsg.style.display = 'none';
+        if (fallback) fallback.style.display = 'flex';
       }
-    }, 8000);
-  }
+    }
+  }, 8000);
 
   modal.classList.remove('pdf-modal-hidden');
   document.body.style.overflow = 'hidden';
