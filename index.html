@@ -334,6 +334,82 @@
 
   .card-item { cursor: pointer; -webkit-tap-highlight-color: rgba(255,107,107,0.15); }
 
+  /* ===== Modal de PDF (visualizador embutido) ===== */
+  .pdf-modal-hidden { display: none !important; }
+  .pdf-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+  }
+  .pdf-modal-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100dvh;
+    background: #faf8f5;
+  }
+  .pdf-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #fff7f2;
+    border-bottom: 3px solid #ffe0d0;
+    flex-shrink: 0;
+  }
+  .pdf-modal-title-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .pdf-modal-title-wrap .emoji { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+  .pdf-modal-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #b45309; margin-bottom: 2px; }
+  .pdf-modal-name { font-size: 1.1rem; font-weight: 800; color: #1c1917; line-height: 1.25; }
+  @media (min-width: 640px) { .pdf-modal-name { font-size: 1.25rem; } }
+  .pdf-frame-wrap {
+    flex: 1;
+    overflow: hidden;
+    background: #525659;
+    position: relative;
+  }
+  .pdf-frame-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .pdf-modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 16px;
+    background: #fff7f2;
+    border-top: 3px solid #ffe0d0;
+    flex-shrink: 0;
+  }
+  .pdf-modal-footer a,
+  .pdf-modal-footer button {
+    flex: 1;
+    min-width: 140px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 1rem;
+    min-height: 56px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: filter 0.15s;
+  }
+  .pdf-modal-footer a:hover, .pdf-modal-footer button:hover { filter: brightness(0.92); }
+  .pdf-btn-primary { background: linear-gradient(135deg, #c2410c, #9a3412); color: #fff; }
+  .pdf-btn-secondary { background: #fff; color: #c2410c; border: 2.5px solid #c2410c !important; }
+  .pdf-btn-close { background: #e7e5e4; color: #44403c; }
+
   /* Player de vídeo simples e direto */
   .video-modal-hidden { display: none !important; }
   .video-modal-backdrop {
@@ -592,6 +668,57 @@ tailwind.config = {
     <a id="video-modal-open-drive" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-bold text-sm text-ink-secondary hover:text-terra underline underline-offset-2"><span id="video-modal-open-drive-label">Abrir no Google Drive</span></a>
      </div>
     </div>
+   </div>
+  </div>
+
+  <!-- ===== Modal de PDF — visualizador embutido, tela cheia ===== -->
+  <div id="pdf-modal" class="pdf-modal-backdrop pdf-modal-hidden" role="dialog" aria-modal="true" aria-labelledby="pdf-modal-name">
+   <div class="pdf-modal-inner">
+
+    <!-- Cabeçalho -->
+    <div class="pdf-modal-header">
+     <div class="pdf-modal-title-wrap">
+      <span class="emoji">📄</span>
+      <div style="min-width:0">
+       <p class="pdf-modal-label">Receita PDF</p>
+       <p id="pdf-modal-name" class="pdf-modal-name"></p>
+      </div>
+     </div>
+     <button onclick="closePdfViewer()" aria-label="Fechar receita"
+       style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:14px;background:#e7e5e4;color:#44403c;font-weight:800;font-size:1rem;border:none;cursor:pointer;min-height:52px;flex-shrink:0">
+      <i data-lucide="x" style="width:22px;height:22px"></i>
+      <span>Fechar</span>
+     </button>
+    </div>
+
+    <!-- Área do PDF -->
+    <div class="pdf-frame-wrap">
+     <!-- Texto de aviso enquanto carrega -->
+     <p id="pdf-loading-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:1.1rem;font-weight:700;text-align:center;pointer-events:none;z-index:1;padding:0 20px">
+      ⏳ Carregando receita… <br><span style="font-size:0.9rem;font-weight:500;opacity:0.8">Se demorar, use o botão "Abrir em nova aba" abaixo.</span>
+     </p>
+     <iframe id="pdf-modal-iframe" src="about:blank"
+       referrerpolicy="strict-origin-when-cross-origin"
+       onload="document.getElementById('pdf-loading-msg').style.display='none'">
+     </iframe>
+    </div>
+
+    <!-- Rodapé com botões grandes -->
+    <div class="pdf-modal-footer">
+     <a id="pdf-btn-newtab" href="#" target="_blank" rel="noopener" class="pdf-btn-primary">
+      <i data-lucide="external-link" style="width:22px;height:22px;flex-shrink:0"></i>
+      <span>Abrir em nova aba</span>
+     </a>
+     <a id="pdf-btn-download" href="#" target="_blank" rel="noopener" class="pdf-btn-secondary">
+      <i data-lucide="download" style="width:22px;height:22px;flex-shrink:0"></i>
+      <span>Baixar PDF</span>
+     </a>
+     <button onclick="closePdfViewer()" class="pdf-btn-close">
+      <i data-lucide="x" style="width:20px;height:20px;flex-shrink:0"></i>
+      <span>Fechar</span>
+     </button>
+    </div>
+
    </div>
   </div>
 
@@ -1080,7 +1207,7 @@ function attachCardActions(host) {
       } else if (item.m === 'v') {
         openVideoPlayer(item);
       } else if (item.m === 'pdf') {
-        window.open(pdfOpenUrl(item), '_blank', 'noopener');
+        openPdfViewer(item);
       } else {
         window.open(driveOpenUrl(item), '_blank', 'noopener');
       }
@@ -1126,6 +1253,49 @@ function closeVideoPlayer() {
   activeVideoItem = null;
   activeVideoSources = [];
   activeVideoSourceIndex = 0;
+}
+
+// ===== Visualizador de PDF embutido =====
+function openPdfViewer(item) {
+  if (!item) return;
+  const modal   = document.getElementById('pdf-modal');
+  const nameEl  = document.getElementById('pdf-modal-name');
+  const frame   = document.getElementById('pdf-modal-iframe');
+  const btnTab  = document.getElementById('pdf-btn-newtab');
+  const btnDl   = document.getElementById('pdf-btn-download');
+  const loadMsg = document.getElementById('pdf-loading-msg');
+  if (!modal || !frame) return;
+
+  // Título
+  if (nameEl) nameEl.textContent = item.n || 'Receita PDF';
+
+  // URLs
+  const openUrl = pdfOpenUrl(item);
+  if (btnTab)  btnTab.href = openUrl;
+  if (btnDl)   btnDl.href  = driveDownloadUrl(item);
+
+  // Embed: CDN direto ou Google Drive preview
+  const cdn = getPdfCdnUrl(item);
+  const embedSrc = cdn ? cdn : drivePreviewUrl(item);
+
+  // Reinicia loading msg
+  if (loadMsg) loadMsg.style.display = '';
+  frame.src = 'about:blank';
+  // Pequeno delay para o about:blank ser carregado antes de trocar a src
+  requestAnimationFrame(() => { frame.src = embedSrc; });
+
+  modal.classList.remove('pdf-modal-hidden');
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+
+function closePdfViewer() {
+  const modal = document.getElementById('pdf-modal');
+  const frame = document.getElementById('pdf-modal-iframe');
+  if (!modal || !frame) return;
+  frame.src = 'about:blank';
+  modal.classList.add('pdf-modal-hidden');
+  document.body.style.overflow = '';
 }
 
 function renderHero() {
@@ -1462,7 +1632,7 @@ function scrollToPix() {
 })();
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeVideoPlayer();
+  if (e.key === 'Escape') { closeVideoPlayer(); closePdfViewer(); }
 });
 
 function filterNav(query) {
