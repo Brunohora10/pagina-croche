@@ -386,6 +386,40 @@
     border: 0;
     display: block;
   }
+  .pdf-support-wrap {
+    flex-shrink: 0;
+    background: #fff;
+    border-bottom: 3px solid #ffe0d0;
+  }
+  .pdf-support-media {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    position: relative;
+    overflow: hidden;
+  }
+  .pdf-support-media iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .pdf-support-cta {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 14px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.97rem;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #fff;
+    min-height: 46px;
+  }
+  .pdf-support-cta:hover { filter: brightness(0.94); }
   /* Tela de fallback para mobile (quando iframe não carrega) */
   .pdf-mobile-fallback {
     display: flex;
@@ -730,6 +764,16 @@ tailwind.config = {
       <i data-lucide="x" style="width:22px;height:22px"></i>
       <span>Fechar</span>
      </button>
+    </div>
+
+    <!-- Vídeo de apoio -->
+    <div id="pdf-support-wrap" class="pdf-support-wrap hidden">
+     <div class="pdf-support-media">
+      <iframe id="pdf-support-video-iframe" src="about:blank" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+     </div>
+     <a id="pdf-support-video-open" href="#" target="_blank" rel="noopener" class="pdf-support-cta">
+      ▶ Assistir vídeo de apoio
+     </a>
     </div>
 
     <!-- Área do PDF -->
@@ -1317,18 +1361,107 @@ function isMobileDevice() {
          (window.matchMedia && window.matchMedia('(max-width: 768px)').matches && 'ontouchstart' in window);
 }
 
+function normalizeNameForMatch(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function scoreNameSimilarity(a, b) {
+  const aa = normalizeNameForMatch(a);
+  const bb = normalizeNameForMatch(b);
+  if (!aa || !bb) return 0;
+  if (aa === bb) return 999;
+
+  const tokensA = aa.split(' ').filter((t) => t.length >= 3);
+  const tokensB = new Set(bb.split(' ').filter((t) => t.length >= 3));
+  let score = 0;
+  tokensA.forEach((token) => {
+    if (tokensB.has(token)) score += 2;
+    else if (bb.includes(token)) score += 1;
+  });
+
+  if (aa.includes(bb) || bb.includes(aa)) score += 3;
+  return score;
+}
+
+function findSupportVideoForPdf(pdfItem) {
+  if (!pdfItem || !pdfItem.p) return null;
+  const parentId = pdfItem.p;
+
+  const siblingVideos = (TREE[parentId] || []).filter((x) => x.m === 'v');
+  let best = null;
+  let bestScore = -1;
+
+  siblingVideos.forEach((video) => {
+    const score = scoreNameSimilarity(pdfItem.n, video.n);
+    if (score > bestScore) {
+      best = video;
+      bestScore = score;
+    }
+  });
+
+  if (best) return best;
+
+  const recursiveVideos = collectRecursiveItems(parentId, 'v');
+  recursiveVideos.forEach((video) => {
+    const score = scoreNameSimilarity(pdfItem.n, video.n);
+    if (score > bestScore) {
+      best = video;
+      bestScore = score;
+    }
+  });
+
+  return best || null;
+}
+
+function setupPdfSupportVideo(pdfItem) {
+  const wrap = document.getElementById('pdf-support-wrap');
+  const frame = document.getElementById('pdf-support-video-iframe');
+  const open = document.getElementById('pdf-support-video-open');
+  if (!wrap || !frame || !open) return;
+
+  const supportVideo = findSupportVideoForPdf(pdfItem);
+  if (!supportVideo) {
+    wrap.classList.add('hidden');
+    frame.src = 'about:blank';
+    open.href = '#';
+    return;
+  }
+
+  const sources = buildVideoSources(supportVideo);
+  const source = sources.find((s) => s.provider === 'bunny') || sources[0];
+  if (!source) {
+    wrap.classList.add('hidden');
+    frame.src = 'about:blank';
+    open.href = '#';
+    return;
+  }
+
+  frame.src = source.preview || drivePreviewUrl(supportVideo);
+  open.href = source.open || driveOpenUrl(supportVideo);
+  wrap.classList.remove('hidden');
+}
+
+function clearPdfSupportVideo() {
+  const wrap = document.getElementById('pdf-support-wrap');
+  const frame = document.getElementById('pdf-support-video-iframe');
+  const open = document.getElementById('pdf-support-video-open');
+  if (wrap) wrap.classList.add('hidden');
+  if (frame) frame.src = 'about:blank';
+  if (open) open.href = '#';
+}
+
 let _pdfFallbackTimer = null;
 
 function openPdfViewer(item) {
   if (!item) return;
 
-  // No celular: abre direto no navegador, sem modal
-  if (isMobileDevice()) {
-    window.open(pdfOpenUrl(item), '_blank', 'noopener');
-    return;
-  }
-
-  // Desktop: modal embutido
+  // Modal com vídeo de apoio em cima e receita embaixo
   const modal    = document.getElementById('pdf-modal');
   const nameEl   = document.getElementById('pdf-modal-name');
   const frame    = document.getElementById('pdf-modal-iframe');
@@ -1336,14 +1469,19 @@ function openPdfViewer(item) {
   const btnDl    = document.getElementById('pdf-btn-download');
   const loadMsg  = document.getElementById('pdf-loading-msg');
   const fallback = document.getElementById('pdf-mobile-fallback');
+  const fbTab    = document.getElementById('pdf-fb-newtab');
+  const fbDl     = document.getElementById('pdf-fb-download');
   if (!modal || !frame) return;
 
   if (nameEl) nameEl.textContent = item.n || 'Receita PDF';
+  setupPdfSupportVideo(item);
 
   const openUrl = pdfOpenUrl(item);
   const dlUrl   = driveDownloadUrl(item);
   if (btnTab) btnTab.href = openUrl;
   if (btnDl)  btnDl.href  = dlUrl;
+  if (fbTab)  fbTab.href  = openUrl;
+  if (fbDl)   fbDl.href   = dlUrl;
 
   if (fallback) fallback.style.display = 'none';
   if (frame)    frame.style.display = 'block';
@@ -1380,6 +1518,7 @@ function closePdfViewer() {
   if (_pdfFallbackTimer) { clearTimeout(_pdfFallbackTimer); _pdfFallbackTimer = null; }
   frame.src = 'about:blank';
   frame.style.display = 'block';
+  clearPdfSupportVideo();
   if (fallback) fallback.style.display = 'none';
   if (loadMsg)  loadMsg.style.display = '';
   modal.classList.add('pdf-modal-hidden');
