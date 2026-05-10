@@ -781,8 +781,8 @@ tailwind.config = {
   <script src="video-mirrors.js"></script>
   <script src="pdf-cdn.js"></script>
   <script src="video-bunny.js?v=20260426b"></script>
-  <script src="app-data.js"></script>
-  <script src="app-data-pdf-overrides.js"></script>
+  <script src="app-data.js?v=20260510a"></script>
+  <script src="app-data-pdf-overrides.js?v=20260510a"></script>
   <script>
 function esc(s) {
   return String(s)
@@ -845,8 +845,22 @@ function getDriveResourceKey(url) {
   }
 }
 
+// PDFs gerados pelo overrides (ou qualquer item PDF) usam um caminho local
+// em item.u (ex.: "receitas/pdfs/foo.pdf"). Detectamos isso para evitar
+// montar URLs do Google Drive com IDs sintéticos (ex.: pdfgen_*) que não
+// existem no Drive e quebrariam o preview/download.
+function getLocalPdfUrl(item) {
+  if (!item || item.m !== 'pdf') return '';
+  const u = String(item.u || '').trim();
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return '';
+  return u;
+}
+
 function driveDownloadUrl(item) {
   if (!item) return '#';
+  const local = getLocalPdfUrl(item);
+  if (local) return local;
   const rk = getDriveResourceKey(item.u);
   const rkParam = rk ? `&resourcekey=${encodeURIComponent(rk)}` : '';
   return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(item.i)}${rkParam}`;
@@ -854,6 +868,8 @@ function driveDownloadUrl(item) {
 
 function drivePreviewUrl(item) {
   if (!item) return '#';
+  const local = getLocalPdfUrl(item);
+  if (local) return local;
   const bunny = getBunnySourceForItem(item);
   if (bunny && bunny.embed) return bunny.embed;
   const rk = getDriveResourceKey(item.u);
@@ -863,6 +879,8 @@ function drivePreviewUrl(item) {
 
 function getPdfCdnUrl(item) {
   if (!item || typeof window === 'undefined') return '';
+  const local = getLocalPdfUrl(item);
+  if (local) return local;
   const map = window.PDF_CDN_MAP || {};
   const raw = map[item.i];
   if (!raw) return '';
