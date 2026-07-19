@@ -320,6 +320,7 @@
     }
   }
 
+
   @keyframes bounce-gentle {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
@@ -332,6 +333,123 @@
   }
 
   .card-item { cursor: pointer; -webkit-tap-highlight-color: rgba(255,107,107,0.15); }
+
+  /* ===== Modal de PDF (visualizador embutido) ===== */
+  .pdf-modal-hidden { display: none !important; }
+  .pdf-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    /* Garante altura real no iOS Safari */
+    height: 100vh;
+    height: 100svh;
+  }
+  .pdf-modal-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: #faf8f5;
+    /* fallback height para browsers antigos */
+    height: 100%;
+  }
+  .pdf-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #fff7f2;
+    border-bottom: 3px solid #ffe0d0;
+    flex-shrink: 0;
+  }
+  .pdf-modal-title-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .pdf-modal-title-wrap .emoji { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+  .pdf-modal-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #b45309; margin-bottom: 2px; }
+  .pdf-modal-name { font-size: 1.05rem; font-weight: 800; color: #1c1917; line-height: 1.25; }
+  @media (min-width: 640px) { .pdf-modal-name { font-size: 1.25rem; } }
+  .pdf-frame-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    background: #525659;
+    position: relative;
+  }
+  .pdf-frame-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  /* Tela de fallback para mobile (quando iframe não carrega) */
+  .pdf-mobile-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 32px 20px;
+    height: 100%;
+    background: #faf8f5;
+    text-align: center;
+  }
+  .pdf-mobile-fallback .pdf-icon { font-size: 5rem; line-height: 1; }
+  .pdf-mobile-fallback .pdf-hint { font-size: 1.1rem; font-weight: 700; color: #44403c; line-height: 1.5; }
+  .pdf-mobile-fallback .pdf-hint-sub { font-size: 0.95rem; font-weight: 500; color: #78716c; margin-top: 4px; }
+  .pdf-mobile-fallback a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+    padding: 18px 24px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    min-height: 64px;
+    text-decoration: none;
+    transition: filter 0.15s;
+  }
+  .pdf-mobile-fallback a:hover { filter: brightness(0.92); }
+  .pdf-mobile-fallback .pdf-open-btn { background: linear-gradient(135deg, #c2410c, #9a3412); color: #fff; }
+  .pdf-mobile-fallback .pdf-dl-btn   { background: #fff; color: #c2410c; border: 2.5px solid #c2410c; }
+  .pdf-modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 16px;
+    background: #fff7f2;
+    border-top: 3px solid #ffe0d0;
+    flex-shrink: 0;
+  }
+  .pdf-modal-footer a,
+  .pdf-modal-footer button {
+    flex: 1;
+    min-width: 140px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 1rem;
+    min-height: 56px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: filter 0.15s;
+  }
+  .pdf-modal-footer a:hover, .pdf-modal-footer button:hover { filter: brightness(0.92); }
+  .pdf-btn-primary { background: linear-gradient(135deg, #c2410c, #9a3412); color: #fff; }
+  .pdf-btn-secondary { background: #fff; color: #c2410c; border: 2.5px solid #c2410c !important; }
+  .pdf-btn-close { background: #e7e5e4; color: #44403c; }
 
   /* Player de vídeo simples e direto */
   .video-modal-hidden { display: none !important; }
@@ -427,8 +545,8 @@ tailwind.config = {
     <!-- Topbar -->
     <div class="topbar-area flex-shrink-0 bg-warm-sidebar border-b-2 border-warm-border px-3 py-2.5 md:px-4 md:py-3">
      <div class="flex items-center gap-2 flex-wrap">
-      <button onclick="toggleSidebar()" class="lg:hidden flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" aria-label="Menu"> <i data-lucide="menu" class="w-5 h-5"></i> <span>Menu</span> </button>
-      <button onclick="goBack()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition"> <i data-lucide="arrow-left" class="w-5 h-5"></i> <span>Voltar</span> </button>
+      <button id="btn-open-menu" onclick="toggleSidebar()" class="lg:hidden flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" aria-label="Ver pastas"> <i data-lucide="menu" class="w-5 h-5"></i> <span>Pastas</span> </button>
+      <button id="btn-go-back" onclick="goBack()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition"> <i data-lucide="arrow-left" class="w-5 h-5"></i> <span>Voltar</span> </button>
       <div class="flex-1"></div>
       <button onclick="toggleBigText()" id="btn-big-text" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" title="Aumentar texto"> <i data-lucide="type" class="w-5 h-5"></i> <span class="hidden sm:inline">Texto maior</span> <span class="sm:hidden">Aa+</span> </button>
       <button onclick="toggleSimple()" id="btn-simple" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border font-bold text-[15px] hover:bg-terra hover:text-white hover:border-terra active:bg-terra active:text-white transition" title="Modo simples"> <i data-lucide="eye" class="w-5 h-5"></i> <span class="hidden sm:inline">Modo simples</span> <span class="sm:hidden">Simples</span> </button>
@@ -438,10 +556,10 @@ tailwind.config = {
      <!-- Hero Section (root only) -->
      <div id="hero-section" class="rounded-2xl p-5 md:p-8 mb-5 fade-in hero-card shadow-xl hidden">
       <div class="relative z-10">
-       <p class="text-white/80 text-sm md:text-base font-bold mb-2">🧶 Bem-vinda à sua biblioteca!</p>
-       <h2 class="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3">Receitas, vídeos e PDFs de crochê <span class="underline decoration-white/40 underline-offset-4">organizados</span> para você</h2>
-       <p class="text-white/90 text-base md:text-lg font-semibold mb-5 leading-relaxed">Explore à vontade! Veja as categorias, abra os PDFs e assista os vídeos. Quando gostar, retribua com o valor que achar justo 💕</p>
-       <div class="flex flex-wrap gap-2 md:gap-3" id="hero-stats"></div>
+       <p class="text-white/80 text-sm md:text-base font-bold mb-2">🧶 Bem-vinda!</p>
+       <h2 class="text-xl md:text-3xl font-extrabold text-white leading-tight mb-3">Veja os vídeos e PDFs de crochê — <span class="underline decoration-white/40 underline-offset-4">você vê primeiro, paga depois!</span></h2>
+       <p class="text-white/90 text-base font-semibold mb-4 leading-relaxed">Tudo organizado por categoria. Vídeos, receitas e PDFs prontos para você. Veja à vontade e, se gostar, pague um valor simbólico pelo PIX 💕</p>
+       <div class="flex flex-wrap gap-2 md:gap-3 mb-4" id="hero-stats"></div>
       </div>
      </div>
 
@@ -461,7 +579,7 @@ tailwind.config = {
       </div>
       <div class="trust-badge rounded-xl px-3 md:px-4 py-2.5 flex items-center gap-2">
        <span class="text-base">♾️</span>
-       <span class="text-sm font-bold text-ink-secondary">Acesso vitalício</span>
+       <span class="text-sm font-bold text-ink-secondary">Acesso para sempre, sem prazo</span>
       </div>
      </div>
 
@@ -473,8 +591,8 @@ tailwind.config = {
        </div>
        <div class="flex-1">
         <h3 class="text-lg md:text-xl font-extrabold text-ink-primary mb-1">Sobre essa biblioteca</h3>
-        <p class="text-ink-secondary text-base font-semibold leading-relaxed">Aqui é a vovó! Reuni com muito carinho minhas receitas, PDFs e videoaulas favoritas pra você aprender no seu ritmo. <span class="text-ink-primary font-extrabold">Acesso vitalício</span>, com atualizações sempre que eu adicionar coisa nova.</p>
-        <p class="text-ink-secondary text-base font-semibold leading-relaxed mt-2">💕 Trabalho na <span class="text-terra font-extrabold">honestidade</span>: dê uma olhada à vontade e, se gostar, <span class="text-ink-primary font-extrabold">contribua com o valor que achar justo</span> — você escolhe quanto vale pra você.</p>
+        <p class="text-ink-secondary text-base font-semibold leading-relaxed">Aqui é a vovó! Reuni com muito carinho minhas receitas, PDFs e videoaulas favoritas pra você aprender no seu ritmo. <span class="text-ink-primary font-extrabold">Você acessa para sempre</span> e sempre que eu adicionar coisa nova, já aparece aqui pra você.</p>
+        <p class="text-ink-secondary text-base font-semibold leading-relaxed mt-2">💕 Trabalho na <span class="text-terra font-extrabold">honestidade</span>: você vê o material primeiro e só paga depois — um <span class="text-ink-primary font-extrabold">valor simbólico via PIX</span>. Você escolhe o quanto vale pra você.</p>
        </div>
       </div>
      </div>
@@ -484,7 +602,7 @@ tailwind.config = {
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
        <p class="text-ink-primary text-sm md:text-base font-bold text-center sm:text-left">💳 Hora de pagar? Chave PIX:</p>
        <div class="flex items-center gap-2">
-        <span class="font-extrabold text-ink-primary text-base md:text-lg select-all">79991083702</span>
+        <span class="font-extrabold text-ink-primary text-base md:text-lg select-all">79991101791</span>
         <button onclick="copyPixQuick()" class="flex items-center gap-1.5 px-4 py-2.5 bg-terra text-white font-extrabold rounded-lg active:scale-95 transition text-sm min-h-[44px]">
          <i data-lucide="copy" class="w-4 h-4"></i> <span id="quick-pix-btn-text">Copiar PIX</span>
         </button>
@@ -495,8 +613,14 @@ tailwind.config = {
      <!-- Breadcrumb -->
      <div class="flex items-center gap-1.5 mb-4 flex-wrap fade-in fade-in-1" id="breadcrumb">
       <button class="px-3 py-1.5 rounded-lg bg-warm-dark/50 text-ink-secondary font-bold text-sm hover:bg-warm-dark transition" onclick="navigateTo('root')">Início</button>
-     </div><!-- Folder Info Card -->
-     <div class="bg-white rounded-2xl border-2 border-warm-border p-4 md:p-6 mb-5 fade-in fade-in-2 shadow-md">
+    </div>
+    <div id="folder-back-guide-wrap" class="hidden mb-4 fade-in fade-in-1">
+     <button onclick="backToFolderGuide()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-sm md:text-base min-h-[48px] active:scale-95 transition">
+      <span>↩️</span>
+      <span>Voltar ao guia de escolha</span>
+     </button>
+    </div><!-- Folder Info Card -->
+    <div id="folder-info-card" class="bg-white rounded-2xl border-2 border-warm-border p-4 md:p-6 mb-5 fade-in fade-in-2 shadow-md">
       <h2 class="text-2xl md:text-3xl font-extrabold text-ink-primary mb-2" id="folder-title">Início</h2>
       <p class="text-ink-secondary text-base font-semibold mb-4" id="folder-meta">6 itens • Atualizado recentemente</p>
       <a href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold rounded-xl hover:shadow-xl active:scale-95 transition text-base shadow-lg min-h-[52px]" id="drive-btn">
@@ -504,6 +628,21 @@ tailwind.config = {
        <span id="drive-btn-text">Abrir tudo no Google Drive</span>
       </a>
      </div><!-- Content Grid -->
+    <div id="folder-guide" class="hidden bg-white rounded-2xl border-2 border-terra/30 p-4 md:p-6 mb-5 shadow-md fade-in fade-in-2">
+     <p id="folder-guide-kicker" class="text-sm md:text-base font-extrabold text-terra uppercase tracking-wide mb-2">Guia rápido da pasta</p>
+     <h3 class="text-2xl md:text-3xl font-extrabold text-ink-primary leading-tight mb-2">O que você quer ver?</h3>
+     <p id="folder-guide-meta" class="text-ink-secondary text-base md:text-lg font-semibold mb-4">Toque em uma opção abaixo.</p>
+     <div class="grid grid-cols-1 gap-3 md:gap-4">
+      <button id="guide-btn-videos" onclick="openFolderVideos()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold text-base md:text-lg shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+       <span>🎬</span>
+       <span>Entrar nos vídeos</span>
+      </button>
+      <button id="guide-btn-pdfs" onclick="openFolderPdfs()" class="w-full min-h-[62px] px-4 py-3.5 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-base md:text-lg active:scale-95 transition flex items-center justify-center gap-2">
+       <span>📄</span>
+       <span>Entrar nos PDFs</span>
+      </button>
+     </div>
+    </div>
      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5" id="content-grid"></div>
 
      <!-- PIX Card (depois do conteúdo = a pessoa já viu valor) -->
@@ -512,13 +651,13 @@ tailwind.config = {
        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-terra to-terra/80 flex items-center justify-center mx-auto mb-3 icon-pulse shadow-lg">
         <i data-lucide="heart" class="w-7 h-7 text-white"></i>
        </div>
-       <p id="pix-msg" class="text-ink-primary text-lg md:text-xl leading-relaxed font-extrabold">🧶 Gostou do material? Faça seu pagamento aqui!</p>
-       <p class="text-ink-secondary text-base mt-2 font-semibold leading-relaxed max-w-md mx-auto">Envie o valor combinado pelo PIX abaixo. É instantâneo e super fácil! Depois me manda o comprovante no WhatsApp 😉</p>
+       <p id="pix-msg" class="text-ink-primary text-lg md:text-xl leading-relaxed font-extrabold">🧶 Gostou? Pague um valor simbólico!</p>
+       <p class="text-ink-secondary text-base mt-2 font-semibold leading-relaxed max-w-md mx-auto">Copie a chave PIX abaixo, faça o pagamento e obrigada de coração! 😉</p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-3 mt-5 relative z-10">
        <div class="flex items-center justify-center gap-2 bg-gradient-to-r from-terra/15 to-terra/10 border-2 border-terra/40 rounded-xl px-4 py-3 shadow-md">
         <span class="text-xs font-extrabold text-terra uppercase tracking-widest">PIX</span>
-        <span id="pix-display" class="font-extrabold text-ink-primary text-lg md:text-xl tracking-wide select-all">79991083702</span>
+        <span id="pix-display" class="font-extrabold text-ink-primary text-lg md:text-xl tracking-wide select-all">79991101791</span>
        </div>
        <button onclick="copyPix()" class="flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-terra to-terra-dark text-white font-extrabold rounded-xl hover:shadow-xl active:scale-95 transition text-base shadow-lg min-h-[52px]">
         <i data-lucide="copy" class="w-5 h-5"></i>
@@ -540,6 +679,8 @@ tailwind.config = {
    <span class="hidden sm:inline text-base">Pagar via PIX</span>
    <span class="sm:hidden text-base">💳 PIX</span>
   </button>
+
+
 
   <!-- Modal de vídeo (um clique e assistir) -->
   <div id="video-modal" class="video-modal-backdrop video-modal-hidden" onclick="closeVideoPlayer()">
@@ -571,11 +712,77 @@ tailwind.config = {
    </div>
   </div>
 
+  <!-- ===== Modal de PDF — visualizador embutido, tela cheia ===== -->
+  <div id="pdf-modal" class="pdf-modal-backdrop pdf-modal-hidden" role="dialog" aria-modal="true" aria-labelledby="pdf-modal-name">
+   <div class="pdf-modal-inner">
+
+    <!-- Cabeçalho -->
+    <div class="pdf-modal-header">
+     <div class="pdf-modal-title-wrap">
+      <span class="emoji">📄</span>
+      <div style="min-width:0">
+       <p class="pdf-modal-label">Receita PDF</p>
+       <p id="pdf-modal-name" class="pdf-modal-name"></p>
+      </div>
+     </div>
+     <button onclick="closePdfViewer()" aria-label="Fechar receita"
+       style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:14px;background:#e7e5e4;color:#44403c;font-weight:800;font-size:1rem;border:none;cursor:pointer;min-height:52px;flex-shrink:0">
+      <i data-lucide="x" style="width:22px;height:22px"></i>
+      <span>Fechar</span>
+     </button>
+    </div>
+
+    <!-- Área do PDF -->
+    <div class="pdf-frame-wrap">
+     <!-- Mensagem de carregando (desktop) -->
+     <p id="pdf-loading-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:1.1rem;font-weight:700;text-align:center;pointer-events:none;z-index:1;padding:0 20px">
+      ⏳ Carregando receita…
+     </p>
+     <!-- Iframe para desktop -->
+     <iframe id="pdf-modal-iframe" src="about:blank"
+       referrerpolicy="strict-origin-when-cross-origin"
+       onload="document.getElementById('pdf-loading-msg').style.display='none'">
+     </iframe>
+     <!-- Fallback para mobile: aparece no lugar do iframe quando não carrega -->
+     <div id="pdf-mobile-fallback" class="pdf-mobile-fallback" style="display:none">
+      <div class="pdf-icon">📄</div>
+      <div>
+       <p class="pdf-hint">No celular, o PDF abre no próprio navegador.</p>
+       <p class="pdf-hint-sub">Toque no botão abaixo para ver a receita:</p>
+      </div>
+      <a id="pdf-fb-newtab" href="#" target="_blank" rel="noopener" class="pdf-open-btn">
+       📖 Ver receita agora
+      </a>
+      <a id="pdf-fb-download" href="#" target="_blank" rel="noopener" class="pdf-dl-btn">
+       ⬇️ Baixar PDF
+      </a>
+     </div>
+    </div>
+
+    <!-- Rodapé com botões grandes -->
+    <div class="pdf-modal-footer">
+     <a id="pdf-btn-newtab" href="#" target="_blank" rel="noopener" class="pdf-btn-primary">
+      <i data-lucide="external-link" style="width:22px;height:22px;flex-shrink:0"></i>
+      <span>Abrir em nova aba</span>
+     </a>
+     <a id="pdf-btn-download" href="#" target="_blank" rel="noopener" class="pdf-btn-secondary">
+      <i data-lucide="download" style="width:22px;height:22px;flex-shrink:0"></i>
+      <span>Baixar PDF</span>
+     </a>
+     <button onclick="closePdfViewer()" class="pdf-btn-close">
+      <i data-lucide="x" style="width:20px;height:20px;flex-shrink:0"></i>
+      <span>Fechar</span>
+     </button>
+    </div>
+
+   </div>
+  </div>
+
   <script src="video-mirrors.js"></script>
   <script src="pdf-cdn.js"></script>
   <script src="video-bunny.js?v=20260426b"></script>
-  <script src="app-data.js"></script>
-  <script src="app-data-pdf-overrides.js"></script>
+  <script src="app-data.js?v=20260510a"></script>
+  <script src="app-data-pdf-overrides.js?v=20260510a"></script>
   <script>
 function esc(s) {
   return String(s)
@@ -638,8 +845,22 @@ function getDriveResourceKey(url) {
   }
 }
 
+// PDFs gerados pelo overrides (ou qualquer item PDF) usam um caminho local
+// em item.u (ex.: "receitas/pdfs/foo.pdf"). Detectamos isso para evitar
+// montar URLs do Google Drive com IDs sintéticos (ex.: pdfgen_*) que não
+// existem no Drive e quebrariam o preview/download.
+function getLocalPdfUrl(item) {
+  if (!item || item.m !== 'pdf') return '';
+  const u = String(item.u || '').trim();
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return '';
+  return u;
+}
+
 function driveDownloadUrl(item) {
   if (!item) return '#';
+  const local = getLocalPdfUrl(item);
+  if (local) return local;
   const rk = getDriveResourceKey(item.u);
   const rkParam = rk ? `&resourcekey=${encodeURIComponent(rk)}` : '';
   return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(item.i)}${rkParam}`;
@@ -647,6 +868,8 @@ function driveDownloadUrl(item) {
 
 function drivePreviewUrl(item) {
   if (!item) return '#';
+  const local = getLocalPdfUrl(item);
+  if (local) return local;
   const bunny = getBunnySourceForItem(item);
   if (bunny && bunny.embed) return bunny.embed;
   const rk = getDriveResourceKey(item.u);
@@ -656,6 +879,8 @@ function drivePreviewUrl(item) {
 
 function getPdfCdnUrl(item) {
   if (!item || typeof window === 'undefined') return '';
+  const local = getLocalPdfUrl(item);
+  if (local) return local;
   const map = window.PDF_CDN_MAP || {};
   const raw = map[item.i];
   if (!raw) return '';
@@ -750,17 +975,25 @@ function buildVideoSources(item) {
   });
 }
 
+// Helpers de localStorage (não quebra em modo privado/Safari)
+function safeLsGet(key) {
+  try { return localStorage.getItem(key); } catch (_) { return null; }
+}
+function safeLsSet(key, value) {
+  try { localStorage.setItem(key, value); } catch (_) {}
+}
+
 function getPreferredSourceIndex(videoId, total) {
   if (!videoId || total <= 1) return 0;
   const dayKey = new Date().toISOString().slice(0, 10);
   const storageKey = `video-src-pref:${videoId}:${dayKey}`;
-  const saved = localStorage.getItem(storageKey);
+  const saved = safeLsGet(storageKey);
   if (saved !== null) {
     const parsed = Number(saved);
     if (!Number.isNaN(parsed)) return Math.abs(parsed) % total;
   }
   const randomIndex = Math.floor(Math.random() * total);
-  localStorage.setItem(storageKey, String(randomIndex));
+  safeLsSet(storageKey, String(randomIndex));
   return randomIndex;
 }
 
@@ -821,11 +1054,11 @@ function getStats() {
 }
 const STATS = getStats();
 
-let currentFolder = localStorage.getItem('lastFolder') || ROOT;
-if (currentFolder !== ROOT && !ITEMS[currentFolder]) currentFolder = ROOT;
+let currentFolder = ROOT;
+let folderViewMode = 'all';
 
-let largeText = localStorage.getItem('largeText') === '1';
-let simpleMode = localStorage.getItem('simpleMode') === '1';
+let largeText = safeLsGet('largeText') === '1';
+let simpleMode = safeLsGet('simpleMode') === '1';
 if (largeText) document.getElementById('app-wrapper').classList.add('bigger-text');
 if (simpleMode) document.getElementById('app-wrapper').classList.add('simple-mode');
 
@@ -833,8 +1066,12 @@ const stripeColors = { video: '#2e6c57', v: '#2e6c57', pdf: '#3d6da5', folder: '
 const typeMeta = {
   v: { label: 'Vídeo-aula', icon: 'play-circle', action: '▶ Assistir agora' },
   pdf: { label: 'Receita PDF', icon: 'file-text', action: '📄 Ver receita' },
-  f: { label: 'Categoria', icon: 'folder', action: '📂 Explorar' }
+  f: { label: 'Categoria', icon: 'folder', action: '📂 Abrir' }
 };
+
+if (currentFolder !== ROOT) {
+  folderViewMode = 'guide';
+}
 
 // Emojis por palavra-chave no nome da pasta (para idosas visualizarem melhor)
 const folderEmojis = [
@@ -862,33 +1099,91 @@ function buildPath(folderId) {
     guard.add(cur);
     const it = ITEMS[cur];
     if (!it) break;
-    chain.unshift({ id: it.i, name: it.n });
+    chain.unshift({ id: it.i, name: displayItemName(it.n, it.i) });
     cur = it.p;
   }
   return path.concat(chain);
 }
 
 function navigateTo(folderId) {
+  if (!folderId) return;
+  if (folderId !== ROOT && !ITEMS[folderId]) return;
   currentFolder = folderId;
-  localStorage.setItem('lastFolder', folderId);
+  folderViewMode = folderId === ROOT ? 'all' : 'guide';
   renderAll();
-  document.getElementById('scroll-area').scrollTop = 0;
+  const scrollArea = document.getElementById('scroll-area');
+  if (scrollArea) scrollArea.scrollTop = 0;
   if (window.innerWidth < 1024) toggleSidebar(false);
+}
+
+function collectRecursiveItems(folderId, type) {
+  const out = [];
+  const seen = new Set();
+  const stack = [folderId];
+
+  while (stack.length) {
+    const cur = stack.pop();
+    const kids = TREE[cur] || [];
+    kids.forEach((item) => {
+      if (item.m === type) {
+        if (!seen.has(item.i)) {
+          seen.add(item.i);
+          out.push(item);
+        }
+        return;
+      }
+      if (item.m === 'f') stack.push(item.i);
+    });
+  }
+
+  return out;
+}
+
+function shouldShowFolderGuide(folderId) {
+  return folderId !== ROOT;
+}
+
+const DISPLAY_NAME_OVERRIDES = {
+  '###VIDEOS COMPLETOS###': '📹 Videoaulas Completas',
+  'A SOUSPLAT (PDF VIDEOS)': '🍽️ Sousplat',
+  'BIQUINES (PDF VIDEOS)': '👙 Biquínis',
+  'AS VIDEOS AULAS PARA INICIANTES': '🎬 Videoaulas para Iniciantes',
+  'padrões de crochê aconchegantes e pontos bonitos.': '🧶 Pontos e Padrões',
+  'VIDEOS PARA CROCHE COM VARIOS MODELOS': '🎬 Vídeos com Vários Modelos',
+};
+const DISPLAY_ID_OVERRIDES = {
+  '14QU1Zn3-HyvN6jsGK0JAN_duuV92d6n6': '📋 Tabela: Português x Inglês x Espanhol x Italiano x Francês x Alemão',
+};
+const FEATURED_ROOT_FOLDERS = [
+  '1OvjIyd9dd_6IhvUjW-v-wRsQ2u_u2-CS',
+  '16ZorTz15-oR-qR_eeFmsQE2-6M9oEh92',
+  '1boL3hc-hHzQBFmHaOMP80XhhuDlUntKH',
+  '1MiVA3J_ZUtT2mFaJwajknLOgNau0VtC1',
+  '10_Z5RZmX3IHvT2SHuny3QQb86BhyD-sF',
+  '1RrinllYQk7GZxPHl3lzIaCpE5DOue-Io',
+  '1z3Z5tzsrct7vwhA9eHyBGMogFC2yaI5h'
+];
+function displayItemName(n, id) {
+  if (id && DISPLAY_ID_OVERRIDES[id]) return DISPLAY_ID_OVERRIDES[id];
+  return DISPLAY_NAME_OVERRIDES[n] || n;
 }
 
 function renderNav() {
   const tree = document.getElementById('nav-tree');
   let html = '<p class="px-3 mb-2 text-xs font-bold text-ink-secondary uppercase tracking-wider">Pastas</p>';
+  const openPath = new Set(buildPath(currentFolder).map((item) => item.id));
 
   function addFolderNode(item, depth) {
     const isActive = item.i === currentFolder;
     const pl = 12 + depth * 14;
-    html += `<div class="nav-item ${isActive ? 'active' : ''} rounded-xl px-3 py-2.5 mb-1 flex items-center gap-2.5" style="padding-left:${pl}px" data-nav="${esc(item.n.toLowerCase())}" data-id="${item.i}">
+    html += `<div class="nav-item ${isActive ? 'active' : ''} rounded-xl px-3 py-2.5 mb-1 flex items-center gap-2.5" style="padding-left:${pl}px" data-nav="${esc(`${item.n} ${displayItemName(item.n, item.i)}`.toLowerCase())}" data-id="${item.i}">
       <i data-lucide="folder" class="w-4 h-4 ${isActive ? 'text-white' : 'text-ink-secondary'} flex-shrink-0"></i>
-      <span class="font-bold text-sm ${isActive ? 'text-white' : 'text-ink-secondary'} truncate">${esc(item.n)}</span>
+      <span class="font-bold text-sm ${isActive ? 'text-white' : 'text-ink-secondary'} truncate">${esc(displayItemName(item.n, item.i))}</span>
     </div>`;
 
-    (TREE[item.i] || []).filter((x) => x.m === 'f').forEach((child) => addFolderNode(child, depth + 1));
+    if (openPath.has(item.i)) {
+      (TREE[item.i] || []).filter((x) => x.m === 'f').forEach((child) => addFolderNode(child, depth + 1));
+    }
   }
 
   const rootActive = currentFolder === ROOT;
@@ -912,9 +1207,12 @@ function cardMarkup(item, idx) {
   const color = stripeColors[item.m] || '#3d6da5';
   const kidCount = (TREE[item.i] || []).length;
   const emoji = isFolder ? getFolderEmoji(item.n) : (item.m === 'v' ? '🎬' : '📄');
-  const subtitle = isFolder
+  const dName = displayItemName(item.n, item.i);
+  let subtitle = isFolder
     ? `${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro`
     : (item.d ? item.d : (item.m === 'v' ? 'Videoaula completa' : 'Pronta para baixar'));
+  let actionLabel = meta.action;
+
   const delay = Math.min(idx * 0.06, 0.5);
   const fallbackDownload = item.m === 'v'
     ? `<a href="${driveDownloadUrl(item)}" target="_blank" rel="noopener" data-stop-card-click="1" class="inline-flex items-center gap-1.5 mt-2 text-xs md:text-sm font-bold text-ink-secondary hover:text-terra underline underline-offset-2">⬇ Baixar vídeo se o Drive bloquear</a>`
@@ -942,16 +1240,37 @@ function cardMarkup(item, idx) {
             <span class="text-xl leading-none">${emoji}</span>
             <span class="text-xs md:text-sm font-extrabold uppercase tracking-wider" style="color:${color}">${meta.label}</span>
           </div>
-          <h3 class="card-title font-extrabold text-ink-primary text-base md:text-lg leading-snug mb-1.5">${esc(item.n)}</h3>
+          <h3 class="card-title font-extrabold text-ink-primary text-base md:text-lg leading-snug mb-1.5">${esc(dName)}</h3>
           <p class="text-sm text-ink-secondary font-semibold leading-relaxed">${esc(subtitle)}</p>
         </div>
         <div class="mt-3">
           <span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-extrabold text-sm md:text-base transition-all min-h-[44px]" style="color:${color};background:${color}15">
-            ${meta.action} →
+            ${actionLabel} →
           </span>
           ${fallbackDownload}
         </div>
       </div>
+    </div>
+  </div>`;
+}
+
+function rootCategoryMarkup(item, idx) {
+  const kidCount = (TREE[item.i] || []).length;
+  const dName = displayItemName(item.n, item.i);
+  const emoji = getFolderEmoji(item.n);
+  const delay = Math.min(idx * 0.05, 0.35);
+
+  return `<div class="card-item bg-white rounded-2xl border-2 border-terra/20 overflow-hidden cursor-pointer fade-in shadow-sm" style="animation-delay:${delay}s" data-id="${item.i}" data-kind="f">
+    <div class="p-4 md:p-5">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-terra/10 flex items-center justify-center flex-shrink-0 text-2xl">${emoji}</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs md:text-sm font-extrabold uppercase tracking-wider text-terra mb-1">Categoria</p>
+          <h3 class="font-extrabold text-ink-primary text-lg md:text-xl leading-snug mb-1">${esc(dName)}</h3>
+          <p class="text-sm text-ink-secondary font-semibold leading-relaxed">${kidCount} ${kidCount === 1 ? 'item' : 'itens'} dentro. Toque para abrir.</p>
+        </div>
+      </div>
+      <div class="mt-4 inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-terra/10 text-terra font-extrabold text-base min-h-[48px]">📂 Abrir categoria</div>
     </div>
   </div>`;
 }
@@ -973,7 +1292,7 @@ function attachCardActions(host) {
       } else if (item.m === 'v') {
         openVideoPlayer(item);
       } else if (item.m === 'pdf') {
-        window.open(pdfOpenUrl(item), '_blank', 'noopener');
+        openPdfViewer(item);
       } else {
         window.open(driveOpenUrl(item), '_blank', 'noopener');
       }
@@ -1021,6 +1340,89 @@ function closeVideoPlayer() {
   activeVideoSourceIndex = 0;
 }
 
+// ===== Visualizador de PDF embutido =====
+function isMobileDevice() {
+  // Apenas user-agents móveis reais — evita falsos positivos em laptops com touch
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent || '');
+}
+
+let _pdfFallbackTimer = null;
+let _pdfOpenGen = 0;
+
+function openPdfViewer(item) {
+  if (!item || !item.i) return;
+
+  const modal    = document.getElementById('pdf-modal');
+  const nameEl   = document.getElementById('pdf-modal-name');
+  const frame    = document.getElementById('pdf-modal-iframe');
+  const btnTab   = document.getElementById('pdf-btn-newtab');
+  const btnDl    = document.getElementById('pdf-btn-download');
+  const loadMsg  = document.getElementById('pdf-loading-msg');
+  const fallback = document.getElementById('pdf-mobile-fallback');
+  const fbTab    = document.getElementById('pdf-fb-newtab');
+  const fbDl     = document.getElementById('pdf-fb-download');
+  if (!modal || !frame) return;
+
+  // Geração: garante que timer de uma abertura antiga não afete a nova
+  const myGen = ++_pdfOpenGen;
+
+  if (nameEl) nameEl.textContent = item.n || 'Receita PDF';
+
+  const openUrl = pdfOpenUrl(item);
+  const dlUrl   = driveDownloadUrl(item);
+  if (btnTab) btnTab.href = openUrl;
+  if (btnDl)  btnDl.href  = dlUrl;
+  if (fbTab)  fbTab.href  = openUrl;
+  if (fbDl)   fbDl.href   = dlUrl;
+
+  if (fallback) fallback.style.display = 'none';
+  if (frame)    frame.style.display = 'block';
+  if (loadMsg)  loadMsg.style.display = '';
+
+  const cdn = getPdfCdnUrl(item);
+  const mobile = isMobileDevice();
+  const embedSrc = cdn ? cdn : drivePreviewUrl(item);
+  // Só troca o src se mudou — evita reload duplicado / flicker
+  if (frame.getAttribute('data-src') !== embedSrc) {
+    frame.setAttribute('data-src', embedSrc);
+    frame.src = embedSrc;
+  }
+
+  // Timeout de fallback: só mostra a tela com botões grandes se o iframe
+  // realmente não carregar (mais tempo no celular pra dar chance de carregar)
+  if (_pdfFallbackTimer) clearTimeout(_pdfFallbackTimer);
+  _pdfFallbackTimer = setTimeout(() => {
+    if (myGen !== _pdfOpenGen) return;
+    const m = document.getElementById('pdf-modal');
+    if (!m || m.classList.contains('pdf-modal-hidden')) return;
+    if (loadMsg && loadMsg.style.display !== 'none') {
+      if (frame)    { frame.style.display = 'none'; frame.src = 'about:blank'; }
+      if (loadMsg)  loadMsg.style.display = 'none';
+      if (fallback) fallback.style.display = 'flex';
+    }
+  }, mobile ? 10000 : 8000);
+
+  modal.classList.remove('pdf-modal-hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePdfViewer() {
+  const modal    = document.getElementById('pdf-modal');
+  const frame    = document.getElementById('pdf-modal-iframe');
+  const fallback = document.getElementById('pdf-mobile-fallback');
+  const loadMsg  = document.getElementById('pdf-loading-msg');
+  if (!modal || !frame) return;
+  if (_pdfFallbackTimer) { clearTimeout(_pdfFallbackTimer); _pdfFallbackTimer = null; }
+  _pdfOpenGen++;
+  frame.src = 'about:blank';
+  frame.removeAttribute('data-src');
+  frame.style.display = 'block';
+  if (fallback) fallback.style.display = 'none';
+  if (loadMsg)  loadMsg.style.display = '';
+  modal.classList.add('pdf-modal-hidden');
+  document.body.style.overflow = '';
+}
+
 function renderHero() {
   const hero = document.getElementById('hero-section');
   const badges = document.getElementById('trust-badges');
@@ -1034,18 +1436,26 @@ function renderHero() {
 
   if (isRoot) {
     const statsHtml = [
-      { emoji: '📄', label: 'receitas e PDFs', count: STATS.pdfs },
-      { emoji: '🎬', label: 'videoaulas', count: STATS.videos },
-      { emoji: '📂', label: 'categorias', count: STATS.folders }
-    ].filter(s => s.count > 0).map(s =>
+      { emoji: '📄', label: 'Receitas e PDFs', count: STATS.pdfs },
+      { emoji: '🎬', label: 'Videoaulas', count: STATS.videos },
+      { emoji: '📂', label: 'Categorias', count: STATS.folders }
+    ].map(s =>
       `<div class="stat-pill rounded-xl px-4 py-2.5 flex items-center gap-2">
         <span class="text-lg">${s.emoji}</span>
-        <span class="text-white font-extrabold text-lg">${s.count}</span>
+        <span class="text-white font-extrabold text-base">${s.count}</span>
         <span class="text-white/80 font-semibold text-sm">${s.label}</span>
       </div>`
     ).join('');
     document.getElementById('hero-stats').innerHTML = statsHtml;
   }
+}
+
+function renderTopbarState() {
+  const isRoot = currentFolder === ROOT;
+  const menuBtn = document.getElementById('btn-open-menu');
+  const backBtn = document.getElementById('btn-go-back');
+  if (menuBtn) menuBtn.classList.remove('hidden');
+  if (backBtn) backBtn.classList.toggle('hidden', isRoot);
 }
 
 function renderBreadcrumb() {
@@ -1057,6 +1467,7 @@ function renderBreadcrumb() {
     return `<button class="px-3.5 py-2 rounded-lg ${cls} font-bold text-sm min-h-[40px] hover:bg-warm-dark active:bg-warm-dark transition" ${attr}>${esc(p.name)}</button>${isLast ? '' : '<i data-lucide="chevron-right" class="w-4 h-4 text-ink-secondary/50"></i>'}`;
   }).join('');
   const bc = document.getElementById('breadcrumb');
+  bc.classList.toggle('hidden', currentFolder === ROOT);
   bc.innerHTML = html;
   bc.querySelectorAll('button[data-id]').forEach((btn) => {
     btn.addEventListener('click', () => navigateTo(btn.getAttribute('data-id')));
@@ -1066,9 +1477,21 @@ function renderBreadcrumb() {
 function renderFolderInfo() {
   const kids = TREE[currentFolder] || [];
   const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
-  const folderName = current ? current.n : 'Todas as categorias';
-  const emoji = current ? getFolderEmoji(current.n) : '🏠';
-  document.getElementById('folder-title').textContent = `${emoji} ${folderName}`;
+  const folderTitle = document.getElementById('folder-title');
+  const folderMeta = document.getElementById('folder-meta');
+  const driveBtn = document.getElementById('drive-btn');
+
+  if (!current) {
+    folderTitle.textContent = '🏠 Escolha uma categoria';
+    folderMeta.textContent = `📂 ${STATS.folders} categorias  •  🎬 ${STATS.videos} vídeos  •  📄 ${STATS.pdfs} receitas e PDFs`;
+    if (driveBtn) driveBtn.classList.add('hidden');
+    return;
+  }
+
+  const folderName = displayItemName(current.n, current.i);
+  const emoji = getFolderEmoji(current.n);
+  folderTitle.textContent = `${emoji} ${folderName}`;
+  if (driveBtn) driveBtn.classList.remove('hidden');
 
   const fCount = kids.filter(x => x.m === 'f').length;
   const vCount = kids.filter(x => x.m === 'v').length;
@@ -1077,21 +1500,98 @@ function renderFolderInfo() {
   if (fCount) parts.push(`📂 ${fCount} categoria${fCount > 1 ? 's' : ''}`);
   if (vCount) parts.push(`🎬 ${vCount} vídeo${vCount > 1 ? 's' : ''}`);
   if (pCount) parts.push(`📄 ${pCount} receita${pCount > 1 ? 's' : ''}`);
-  document.getElementById('folder-meta').textContent = parts.length ? parts.join('  •  ') : 'Pasta vazia';
-
-  const driveBtn = document.getElementById('drive-btn');
+  folderMeta.textContent = parts.length ? parts.join('  •  ') : 'Pasta vazia';
   driveBtn.href = current ? (current.u || `https://drive.google.com/drive/folders/${current.i}`) : `https://drive.google.com/drive/folders/${ROOT}`;
 }
 
 function renderFolderItems() {
+  const grid = document.getElementById('content-grid');
   const kids = TREE[currentFolder] || [];
-  const ordered = [
+  const folderInfo = document.getElementById('folder-info-card');
+  const guide = document.getElementById('folder-guide');
+
+  const guideEnabled = shouldShowFolderGuide(currentFolder);
+  const current = currentFolder === ROOT ? null : ITEMS[currentFolder];
+  const folderName = current ? displayItemName(current.n, current.i) : 'esta pasta';
+
+  if (guideEnabled && folderViewMode === 'guide') {
+    if (grid) grid.innerHTML = '';
+    if (folderInfo) folderInfo.classList.add('hidden');
+    if (guide) guide.classList.remove('hidden');
+    return;
+  }
+
+  if (folderInfo) folderInfo.classList.remove('hidden');
+
+  if (guideEnabled && folderViewMode === 'videos') {
+    const videos = collectRecursiveItems(currentFolder, 'v');
+    document.getElementById('folder-title').textContent = `🎬 Todos os vídeos de ${folderName}`;
+    document.getElementById('folder-meta').textContent = `🎬 ${videos.length} vídeo${videos.length === 1 ? '' : 's'}`;
+    if (!videos.length) {
+      grid.innerHTML = `<div class="col-span-full text-center py-12">
+        <p class="text-5xl mb-4">🎬</p>
+        <p class="text-ink-secondary font-bold text-lg">Nenhum vídeo encontrado nesta pasta</p>
+      </div>`;
+      lucide.createIcons();
+      return;
+    }
+    grid.innerHTML = videos.map((item, idx) => cardMarkup(item, idx)).join('');
+    attachCardActions(grid);
+    return;
+  }
+
+  if (guideEnabled && folderViewMode === 'pdfs') {
+    const pdfs = collectRecursiveItems(currentFolder, 'pdf');
+    document.getElementById('folder-title').textContent = `📄 Todos os PDFs de ${folderName}`;
+    document.getElementById('folder-meta').textContent = `📄 ${pdfs.length} receita${pdfs.length === 1 ? '' : 's'}`;
+    if (!pdfs.length) {
+      grid.innerHTML = `<div class="col-span-full text-center py-12">
+        <p class="text-5xl mb-4">📄</p>
+        <p class="text-ink-secondary font-bold text-lg">Nenhum PDF encontrado nesta pasta</p>
+      </div>`;
+      lucide.createIcons();
+      return;
+    }
+    grid.innerHTML = pdfs.map((item, idx) => cardMarkup(item, idx)).join('');
+    attachCardActions(grid);
+    return;
+  }
+
+  let ordered = [
     ...kids.filter((x) => x.m === 'f'),
     ...kids.filter((x) => x.m === 'v'),
     ...kids.filter((x) => x.m === 'pdf')
   ];
 
-  const grid = document.getElementById('content-grid');
+  if (currentFolder === ROOT) {
+    const folders = FEATURED_ROOT_FOLDERS
+      .map((id) => kids.find((x) => x.i === id && x.m === 'f'))
+      .filter(Boolean);
+    const looseFiles = kids.filter((x) => x.m !== 'f');
+    grid.className = 'grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4';
+    const foldersHtml = folders.map((item, idx) => rootCategoryMarkup(item, idx)).join('');
+    const helperHtml = `<div class="col-span-full bg-white rounded-2xl border-2 border-warm-border p-4 md:p-5 shadow-sm fade-in">
+      <p class="text-sm font-extrabold text-terra uppercase tracking-wide mb-1">Mais categorias</p>
+      <h3 class="text-xl md:text-2xl font-extrabold text-ink-primary leading-tight mb-2">Quer ver o restante?</h3>
+      <p class="text-ink-secondary text-base font-semibold mb-3">Use a busca ou toque em Pastas para abrir todas as outras categorias.</p>
+      <button onclick="toggleSidebar(true)" class="lg:hidden inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-warm-bg border-2 border-warm-border text-ink-primary font-extrabold text-base min-h-[48px] active:scale-95 transition">
+        <span>📁</span>
+        <span>Ver todas as pastas</span>
+      </button>
+    </div>`;
+    const extrasHtml = looseFiles.length
+      ? `<div class="col-span-full pt-2">
+          <p class="text-sm font-extrabold text-ink-secondary uppercase tracking-wide mb-3">Receitas extras</p>
+        </div>${looseFiles.map((item, idx) => cardMarkup(item, folders.length + idx)).join('')}`
+      : '';
+
+    grid.innerHTML = foldersHtml + helperHtml + extrasHtml;
+    attachCardActions(grid);
+    return;
+  }
+
+  grid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5';
+
   if (!ordered.length) {
     grid.innerHTML = `<div class="col-span-full text-center py-12">
       <p class="text-5xl mb-4">🧶</p>
@@ -1105,14 +1605,65 @@ function renderFolderItems() {
   attachCardActions(grid);
 }
 
+function renderFolderGuide() {
+  const guide = document.getElementById('folder-guide');
+  const folderInfo = document.getElementById('folder-info-card');
+  const grid = document.getElementById('content-grid');
+  const quickPix = document.getElementById('quick-pix');
+  const pixCard = document.getElementById('pix-card');
+  const backWrap = document.getElementById('folder-back-guide-wrap');
+  if (!guide) return;
+  const showGuide = shouldShowFolderGuide(currentFolder) && folderViewMode === 'guide';
+
+  if (shouldShowFolderGuide(currentFolder)) {
+    const current = ITEMS[currentFolder];
+    const kicker = document.getElementById('folder-guide-kicker');
+    const meta = document.getElementById('folder-guide-meta');
+    const videos = collectRecursiveItems(currentFolder, 'v');
+    const pdfs = collectRecursiveItems(currentFolder, 'pdf');
+    if (kicker) kicker.textContent = `Guia rápido: ${current ? displayItemName(current.n, current.i) : 'Pasta'}`;
+    if (meta) meta.textContent = `🎬 ${videos.length} vídeos  •  📄 ${pdfs.length} PDFs`;
+  }
+
+  guide.classList.toggle('hidden', !showGuide);
+  if (backWrap) backWrap.classList.toggle('hidden', !(shouldShowFolderGuide(currentFolder) && (folderViewMode === 'videos' || folderViewMode === 'pdfs')));
+  if (folderInfo) folderInfo.classList.toggle('hidden', showGuide);
+  if (grid) grid.classList.toggle('hidden', showGuide);
+  if (quickPix) quickPix.classList.toggle('hidden', showGuide);
+  if (pixCard) pixCard.classList.toggle('hidden', showGuide);
+}
+
+function openFolderVideos() {
+  folderViewMode = 'videos';
+  renderAll();
+  document.getElementById('scroll-area').scrollTop = 0;
+}
+
+function openFolderPdfs() {
+  folderViewMode = 'pdfs';
+  renderAll();
+  document.getElementById('scroll-area').scrollTop = 0;
+}
+
+function backToFolderGuide() {
+  folderViewMode = 'guide';
+  renderAll();
+  document.getElementById('scroll-area').scrollTop = 0;
+}
+
 function renderSearch(query) {
+  folderViewMode = 'all';
   const q = query.trim().toLowerCase();
   if (!q) {
     renderFolderItems();
     return;
   }
 
-  const hits = Object.values(ITEMS).filter((it) => it.n.toLowerCase().includes(q));
+  const hits = Object.values(ITEMS).filter((it) => {
+    const raw = it.n.toLowerCase();
+    const shown = displayItemName(it.n, it.i).toLowerCase();
+    return raw.includes(q) || shown.includes(q);
+  });
   const grid = document.getElementById('content-grid');
   document.getElementById('folder-title').textContent = `${hits.length} resultado${hits.length !== 1 ? 's' : ''} para "${query.trim()}"`;
   document.getElementById('folder-meta').textContent = 'Busca em todo o acervo';
@@ -1152,7 +1703,7 @@ function toggleBigText() {
   document.getElementById('btn-big-text').classList.toggle('!text-white', largeText);
   document.getElementById('btn-big-text').classList.toggle('!border-terra', largeText);
   document.getElementById('btn-big-text').classList.toggle('!shadow-lg', largeText);
-  localStorage.setItem('largeText', largeText ? '1' : '0');
+  safeLsSet('largeText', largeText ? '1' : '0');
 }
 
 function toggleSimple() {
@@ -1164,7 +1715,7 @@ function toggleSimple() {
   document.getElementById('btn-simple').classList.toggle('!text-white', simpleMode);
   document.getElementById('btn-simple').classList.toggle('!border-terra', simpleMode);
   document.getElementById('btn-simple').classList.toggle('!shadow-lg', simpleMode);
-  localStorage.setItem('simpleMode', simpleMode ? '1' : '0');
+  safeLsSet('simpleMode', simpleMode ? '1' : '0');
 }
 
 function copyPix() {
@@ -1177,7 +1728,7 @@ function copyPix() {
 }
 
 function copyPixQuick() {
-  navigator.clipboard.writeText('79991083702').then(() => {
+  navigator.clipboard.writeText('79991101791').then(() => {
     const btn = document.getElementById('quick-pix-btn-text');
     btn.textContent = '✅ Copiado!';
     setTimeout(() => { btn.textContent = 'Copiar PIX'; }, 2000);
@@ -1206,7 +1757,7 @@ function scrollToPix() {
 })();
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeVideoPlayer();
+  if (e.key === 'Escape') { closeVideoPlayer(); closePdfViewer(); }
 });
 
 function filterNav(query) {
@@ -1221,8 +1772,10 @@ function filterNav(query) {
 function renderAll() {
   renderNav();
   renderHero();
+  renderTopbarState();
   renderBreadcrumb();
   renderFolderInfo();
+  renderFolderGuide();
   renderFolderItems();
   lucide.createIcons();
 }
